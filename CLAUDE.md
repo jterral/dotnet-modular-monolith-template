@@ -1,0 +1,69 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this repo is
+
+A **template** for .NET 10 modular monoliths. It ships only the reusable core (`Shared` folders, test harness, tooling). Modules and hosts are added by the projects built from it, so `Shared` must stay generic: no business code, nothing tied to one module.
+
+## Project layout (deliberate, do not change it)
+
+- Exactly **one** `Domain`, **one** `Application` and **one** `Infrastructure` project. Never create a project per module.
+- Each of these three projects holds a `Shared/` folder plus **one folder per module**:
+
+  ```text
+  src/Domain/          Shared/  Orders/  Billing/
+  src/Application/     Shared/  Orders/  Billing/
+  src/Infrastructure/  Shared/  Orders/  Billing/
+  ```
+
+- Hosts are the only per-module projects: one project per host in `src/Hosts/` (solution folder `/Hosts/`), named `<Module>.<HostKind>`, e.g. `Orders.Api`, `Orders.Worker`, `Billing.Api`. A host wires up `Shared` plus its own module only.
+- Dependency direction: `Domain` ← `Application` ← `Infrastructure` ← hosts. `Domain` references no package.
+
+### Module boundaries
+
+A module folder may use its own module and `Shared`, never another module's folder. `Shared` never uses a module. Because the three core projects are shared by all modules, the compiler cannot isolate them: `internal` hides types from hosts, not from other modules.
+
+Architecture tests will enforce these boundaries in a later PR. Until then, respect them by hand.
+
+## How the pieces fit
+
+- **Namespaces follow folders.** `RootNamespace` is empty, so code in `src/Application/Orders/` lives in `Application.Orders…`. Assembly names get a `ModularMonolith.` prefix (`Directory.Build.props`).
+- **Commands and queries** (`Application/Shared/Messaging`): `ICommand`, `ICommand<T>` and `IQuery<T>`, with handlers returning `Result` / `Result<T>` (`Domain/Shared/Result.cs`; a failure carries an `Error(Code, Description)`). No mediator: callers inject `ICommandHandler<TCommand>` or `IQueryHandler<TQuery, T>` directly.
+- **The pipeline is decorators built at registration.** `AddCommandHandler` / `AddQueryHandler` (`Application/Shared/Extensions/ServiceCollectionExtensions.cs`) wrap the handler in `ValidationBehavior` (commands only, runs every `IValidator<TCommand>`), then `LoggingBehavior`. A handler registered any other way skips the pipeline.
+- **Registration is explicit and happens inside the layer.** Those helpers and `DomainEventsDispatcher` are `internal`, so each module registers its own types from within `Application` / `Infrastructure` and exposes public `Add…` extension methods for its hosts. No assembly scanning. Startup work goes in an `IModuleInitializer`, aggregated through DI (`IEnumerable<IModuleInitializer>`).
+- **Persistence:** each module has its own `DbContext` targeting its own database, deriving from `Infrastructure/Shared/Persistence/ApplicationDbContext` (no `DbSet`, implements `IUnitOfWork`). PostgreSQL via Npgsql.
+- **Domain events:** raised with `AggregateRoot.Raise(...)`. `ApplicationDbContext.SaveChangesAsync` collects them from tracked aggregates, saves, **then** dispatches them in the same DI scope to every registered `IDomainEventHandler<TEvent>`.
+- **Hosts without a request scope** (workers, consumers) use `UnitOfWorkScope` or `ScopedExecutor` to open one scope per unit of work. Never use them from ASP.NET Core: they create a sibling scope, i.e. a second `DbContext`.
+
+## Commands
+
+The SDK is pinned to 10.0.401 (`mise.toml` and `global.json`). Tests run on **Microsoft.Testing.Platform** (`global.json`), so `dotnet test` takes MTP options, not VSTest ones.
+
+```bash
+dotnet build
+dotnet test                                     # all tests; DbTests need Docker (Testcontainers, postgres:18.6)
+dotnet test --project tests/Architecture.Tests  # one project
+dotnet test --project tests/Architecture.Tests --filter-method "*Domain_Always_HasNoDependencyOnApplication"  # one test
+dotnet format --verify-no-changes               # full format check (same as `mise run dotnet:format`)
+pre-commit run --all-files                      # gitleaks, whitespace, YAML
+mise run db:postgres                            # throwaway local PostgreSQL on port 5432
+```
+
+CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and `dotnet format analyzers` at `--severity info`, then build and tests.
+
+## Dependencies
+
+- Central Package Management, split in two: `src/Directory.Packages.props` and `tests/Directory.Packages.props`. Versions go there, never in a `.csproj`.
+- `packages.lock.json` files are committed. A package change updates them on restore; commit them with it.
+
+## Tests
+
+- `Architecture.Tests` (ArchUnitNET) already enforce layer direction, `internal` handlers, `*CommandHandler` / `*QueryHandler` suffixes, `*Validator` classes living in Application, and entities not being records. Rules use `.WithoutRequiringPositiveResults()` so they pass on the empty template.
+- Two rules are skipped until a matching type exists: handler colocated with its command/query (same namespace), and `IValueObject` implementations being sealed records. Remove the `Skip` when adding the first handler or value object.
+- `Testing.Shared` holds helpers shared by every test project (e.g. `AssertEx`).
+
+## Conventions
+
+- C# rules live in `.claude/rules/csharp.md` (loaded automatically for `*.cs` files): no MediatR, AutoMapper or FluentAssertions; xUnit v3 + Moq; test naming and structure.
+- Commits follow Conventional Commits, checked by a pre-commit `commit-msg` hook. Allowed types: `fix feat test ci chore refactor wip`. PR titles must be semantic **with a scope** (`.github/workflows/pr-lint.yml`).
