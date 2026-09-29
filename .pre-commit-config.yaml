@@ -1,0 +1,35 @@
+default_stages:
+  - pre-commit
+
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+repos:
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        name: conventional commit
+        stages: [commit-msg]
+        args: [fix, feat, test, ci, chore, refactor,wip]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-merge-conflict
+      - id: check-yaml
+        args:
+          - "--allow-multiple-documents"
+      - id: check-added-large-files
+      - id: end-of-file-fixer
+        exclude_types:
+          - "markdown"
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+        name: detect hardcoded secrets

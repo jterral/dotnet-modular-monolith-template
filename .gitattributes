@@ -1,0 +1,7 @@
+# .gitattributes
+# Controls how Git handles line endings and file types for this repository.
+# Reference: https://git-scm.com/docs/gitattributes
+
+# Auto-detect text files, normalize to LF in the repository and in the working tree.
+# Binary files are detected automatically and left untouched.
+*          text=auto eol=lf
