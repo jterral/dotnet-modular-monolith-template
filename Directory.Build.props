@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+
+    <AssemblyName>ModularMonolith.$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
+    <RootNamespace></RootNamespace>
+  </PropertyGroup>
+</Project>
