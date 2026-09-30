@@ -42,9 +42,9 @@ Architecture tests will enforce these boundaries in a later PR. Until then, resp
 
 A foosball (table football) league: `Player` (name + Elo rating) and `Match` (first to 10 goals). `Foosball.Worker` is the robot referee: each tick it plays a random goal in every match in progress, or kicks off a new one between two random players. Finishing a match raises `MatchFinished`, whose handler updates the Elo ratings and saves itself; a 10-0 also raises `FannyAchieved`.
 
-- Wiring: `AddFoosballApplication()` and `AddFoosballInfrastructure(configuration)` (options `Foosball:ConnectionString`, required and validated on start, no default; the Worker's `appsettings.json` points it at the git-ignored SQLite file `foosball.db`). `FoosballModuleInitializer` creates the schema (`EnsureCreated`, no migrations yet) and seeds four players.
+- Wiring: `AddFoosballApplication()` and `AddFoosballInfrastructure(configuration)` (options `Foosball:ConnectionString`, required and validated on start, no default; the Worker's `appsettings.json` holds the placeholder `__SQLITE_DB_PATH__` for the deployment to replace, `appsettings.Development.json` points it at the git-ignored SQLite file `foosball.db`, `appsettings.Production.json` is empty). `FoosballModuleInitializer` creates the schema (`EnsureCreated`, no migrations yet) and seeds four players.
 - The module has its own `IFoosballUnitOfWork` (implemented by `FoosballDbContext`) so several modules never compete for `IUnitOfWork`.
-- Run it: `dotnet run --project src/Hosts/Foosball.Worker` (tick interval: `MatchSimulation:TickInterval`).
+- Run it: `dotnet run --project src/Hosts/Foosball.Worker` (the launch profile sets `DOTNET_ENVIRONMENT=Development`; tick interval: `MatchSimulation:TickInterval`).
 
 ## Commands
 

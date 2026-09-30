@@ -25,6 +25,25 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void AddFoosballInfrastructure_UnreplacedPlaceholder_FailsOptionsValidation()
+    {
+        // Arrange
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Foosball:ConnectionString"] = "Data Source=__SQLITE_DB_PATH__" })
+            .Build();
+        using ServiceProvider provider = new ServiceCollection()
+            .AddFoosballInfrastructure(configuration)
+            .BuildServiceProvider();
+
+        // Act
+        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(() =>
+            provider.GetRequiredService<IOptions<FoosballOptions>>().Value);
+
+        // Assert
+        Assert.Contains("PLACEHOLDER", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AddFoosballInfrastructure_ConnectionStringProvided_BindsTheOptions()
     {
         // Arrange
