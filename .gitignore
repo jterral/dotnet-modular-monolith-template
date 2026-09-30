@@ -427,3 +427,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# SQLite databases created by the hosts at runtime
+*.db
+*.db-shm
+*.db-wal

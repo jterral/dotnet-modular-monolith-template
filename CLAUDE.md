@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **template** for .NET 10 modular monoliths. It ships only the reusable core (`Shared` folders, test harness, tooling). Modules and hosts are added by the projects built from it, so `Shared` must stay generic: no business code, nothing tied to one module.
 
+The one exception is `Foosball` (with its `Foosball.Worker` host): a **reference module** showing how the pieces fit together (aggregates, value objects, commands/queries, validators, domain events, module DbContext, initializer, worker). Projects built from the template delete it and add their own modules; nothing in `Shared` may depend on it.
+
 ## Project layout (deliberate, do not change it)
 
 - Exactly **one** `Domain`, **one** `Application` and **one** `Infrastructure` project. Never create a project per module.
@@ -35,6 +37,14 @@ Architecture tests will enforce these boundaries in a later PR. Until then, resp
 - **Persistence:** each module has its own `DbContext` targeting its own database, deriving from `Infrastructure/Shared/Persistence/ApplicationDbContext` (no `DbSet`, implements `IUnitOfWork`). SQLite via `Microsoft.EntityFrameworkCore.Sqlite`.
 - **Domain events:** raised with `AggregateRoot.Raise(...)`. `ApplicationDbContext.SaveChangesAsync` collects them from tracked aggregates, saves, **then** dispatches them in the same DI scope to every registered `IDomainEventHandler<TEvent>`. Nothing saves on a handler's behalf: a handler that changes tracked entities must call `SaveChangesAsync` itself. If a handler throws, the data is already saved and the events are not replayed (no outbox).
 - **Hosts without a request scope** (workers, consumers) use `UnitOfWorkScope` or `ScopedExecutor` to open one scope per unit of work. Never use them from ASP.NET Core: they create a sibling scope, i.e. a second `DbContext`.
+
+## The Foosball reference module
+
+A foosball (table football) league: `Player` (name + Elo rating) and `Match` (first to 10 goals). `Foosball.Worker` is the robot referee: each tick it plays a random goal in every match in progress, or kicks off a new one between two random players. Finishing a match raises `MatchFinished`, whose handler updates the Elo ratings and saves itself; a 10-0 also raises `FannyAchieved`.
+
+- Wiring: `AddFoosballApplication()` and `AddFoosballInfrastructure(configuration)` (standard `ConnectionStrings:Foosball`, required and checked at registration, no default, a leftover `__PLACEHOLDER__` is rejected; the Worker's `appsettings.json` holds the placeholder `__SQLITE_DB_PATH__` for the deployment to replace, `appsettings.Development.json` points it at the git-ignored SQLite file `foosball.db`, `appsettings.Production.json` is empty). `FoosballModuleInitializer` creates the schema (`EnsureCreated`, no migrations yet) and seeds four players.
+- The module has its own `IFoosballUnitOfWork` (implemented by `FoosballDbContext`) so several modules never compete for `IUnitOfWork`.
+- Run it: `dotnet run --project src/Hosts/Foosball.Worker` (the launch profile sets `DOTNET_ENVIRONMENT=Development`; tick interval: `MatchSimulation:TickInterval`).
 
 ## Commands
 
