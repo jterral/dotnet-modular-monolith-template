@@ -32,7 +32,7 @@ Architecture tests will enforce these boundaries in a later PR. Until then, resp
 - **Commands and queries** (`Application/Shared/Messaging`): `ICommand`, `ICommand<T>` and `IQuery<T>`, with handlers returning `Result` / `Result<T>` (`Domain/Shared/Result.cs`; a failure carries an `Error(Code, Description)`). No mediator: callers inject `ICommandHandler<TCommand>` or `IQueryHandler<TQuery, T>` directly.
 - **The pipeline is decorators built at registration.** `AddCommandHandler` / `AddQueryHandler` (`Application/Shared/Extensions/ServiceCollectionExtensions.cs`) wrap the handler in `ValidationBehavior` (commands only, runs every `IValidator<TCommand>`), then `LoggingBehavior`. A handler registered any other way skips the pipeline.
 - **Registration is explicit and happens inside the layer.** Those helpers and `DomainEventsDispatcher` are `internal`, so each module registers its own types from within `Application` / `Infrastructure` and exposes public `Add…` extension methods for its hosts. No assembly scanning. Startup work goes in an `IModuleInitializer`, aggregated through DI (`IEnumerable<IModuleInitializer>`).
-- **Persistence:** each module has its own `DbContext` targeting its own database, deriving from `Infrastructure/Shared/Persistence/ApplicationDbContext` (no `DbSet`, implements `IUnitOfWork`). PostgreSQL via Npgsql.
+- **Persistence:** each module has its own `DbContext` targeting its own database, deriving from `Infrastructure/Shared/Persistence/ApplicationDbContext` (no `DbSet`, implements `IUnitOfWork`). SQLite via `Microsoft.EntityFrameworkCore.Sqlite`.
 - **Domain events:** raised with `AggregateRoot.Raise(...)`. `ApplicationDbContext.SaveChangesAsync` collects them from tracked aggregates, saves, **then** dispatches them in the same DI scope to every registered `IDomainEventHandler<TEvent>`.
 - **Hosts without a request scope** (workers, consumers) use `UnitOfWorkScope` or `ScopedExecutor` to open one scope per unit of work. Never use them from ASP.NET Core: they create a sibling scope, i.e. a second `DbContext`.
 
@@ -42,12 +42,13 @@ The SDK is pinned to 10.0.401 (`mise.toml` and `global.json`). Tests run on **Mi
 
 ```bash
 dotnet build
-dotnet test                                     # all tests; DbTests need Docker (Testcontainers, postgres:18.6)
+dotnet test                                     # all tests
 dotnet test --project tests/Architecture.Tests  # one project
 dotnet test --project tests/Architecture.Tests --filter-method "*Domain_Always_HasNoDependencyOnApplication"  # one test
-dotnet format --verify-no-changes               # full format check (same as `mise run dotnet:format`)
+mise run dotnet:ci:test                         # the test commands CI runs
+mise run dotnet:ci:format                       # the format checks CI runs (style + analyzers, severity info)
+dotnet format --verify-no-changes               # stricter than CI: also checks whitespace and charset
 pre-commit run --all-files                      # gitleaks, whitespace, YAML
-mise run db:postgres                            # throwaway local PostgreSQL on port 5432
 ```
 
 CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and `dotnet format analyzers` at `--severity info`, then build and tests.
@@ -60,7 +61,8 @@ CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and 
 ## Tests
 
 - `Architecture.Tests` (ArchUnitNET) already enforce layer direction, `internal` handlers, `*CommandHandler` / `*QueryHandler` suffixes, `*Validator` classes living in Application, and entities not being records. Rules use `.WithoutRequiringPositiveResults()` so they pass on the empty template.
-- Two rules are skipped until a matching type exists: handler colocated with its command/query (same namespace), and `IValueObject` implementations being sealed records. Remove the `Skip` when adding the first handler or value object.
+- Rules that need a matching type (handler in the same namespace as its command/query, `IValueObject` being a sealed record) are inert on the empty template and activate on their own once such a type exists. There is no `Skip` to remove.
+- `Infrastructure.DbTests` run against in-memory SQLite: no Docker or external database needed.
 - `Testing.Shared` holds helpers shared by every test project (e.g. `AssertEx`).
 
 ## Conventions
