@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.UnitTests;
+namespace Infrastructure.UnitTests;
 
 public class UnitTest1
 {
