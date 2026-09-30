@@ -21,7 +21,7 @@ tests/
 
 ## Stack
 
-.NET 10 · EF Core · PostgreSQL · xUnit v3 · ArchUnitNET · Testcontainers
+.NET 10 · EF Core · SQLite · xUnit v3 · ArchUnitNET
 
 ## License
 
