@@ -1,8 +1,6 @@
 # 📋 Description
 
-<!--- Describe your changes in detail -->
-
-- Please include a summary of the changes, as a list of bullet points.
+- TODO: Please include a summary of the changes, as a list of bullet points.
 
 ## 💡 Type of Change
 
