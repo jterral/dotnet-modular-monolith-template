@@ -29,13 +29,3 @@ run = """
 dotnet format style --severity info --verify-no-changes
 dotnet format analyzers --severity info --verify-no-changes
 """
-
-[tasks."db:postgres"]
-description = "Start a throwaway local PostgreSQL container"
-run = """
-docker run -it --rm \
-  --name {{env.PROJECT_NAME}}-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 \
-  postgres:18.6
-"""
