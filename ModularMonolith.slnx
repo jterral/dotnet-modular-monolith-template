@@ -12,7 +12,9 @@
     <Project Path="tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" Id="e578e76f-181b-44d6-9465-697a06f71109" />
     <Project Path="tests/Testing.Shared/Testing.Shared.csproj" Id="96403175-f33e-4847-86a8-385b0508b4f9" />
   </Folder>
-  <Folder Name="/Hosts/" />
+  <Folder Name="/Hosts/">
+    <Project Path="src/Hosts/Foosball.Worker/Foosball.Worker.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
   </Folder>

@@ -10,6 +10,7 @@ src/
   Application/       Shared/ + one folder per module
   Infrastructure/    Shared/ + one folder per module
   Hosts/             one project per host: Orders.Api, Orders.Worker, Billing.Api...
+                     (the template ships Foosball.Worker as a reference)
 tests/
 ```
 
