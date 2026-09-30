@@ -6,7 +6,6 @@ on:
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
-  DOTNET_VERSION: 10.0.x
 
 jobs:
   pre-commit:
@@ -24,7 +23,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          global-json-file: global.json
           cache: true
           cache-dependency-path: "**/packages.lock.json"
       - run: dotnet format style --severity info --verify-no-changes
@@ -39,7 +38,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          global-json-file: global.json
           cache: true
           cache-dependency-path: "**/packages.lock.json"
       - run: dotnet restore --configfile nuget.config
