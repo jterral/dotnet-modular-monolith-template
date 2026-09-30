@@ -5,7 +5,7 @@ namespace Architecture.Tests;
 
 public class ColocationTests : BaseTest
 {
-    [Theory(Skip = "No Commands/Queries handlers created yet")]
+    [Theory(SkipTestWithoutData = true)]
     [MemberData(nameof(GetHandlerAndCommandPairs))]
     public void Handlers_ShouldResideInSameNamespace_AsTheirCommandOrQuery(Type handlerType, Type commandOrQueryType)
         => AssertEx.Equal(handlerType.Namespace, commandOrQueryType.Namespace, $"{handlerType.Name} should be in the same namespace as {commandOrQueryType.Name}");
