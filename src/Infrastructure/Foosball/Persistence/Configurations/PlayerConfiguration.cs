@@ -2,7 +2,7 @@ using Domain.Foosball.Players;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Foosball.Persistence;
+namespace Infrastructure.Foosball.Persistence.Configurations;
 
 internal sealed class PlayerConfiguration : IEntityTypeConfiguration<Player>
 {

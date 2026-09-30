@@ -2,6 +2,7 @@ using Application.Foosball;
 using Application.Shared.Events;
 using Domain.Foosball.Matches;
 using Domain.Foosball.Players;
+using Infrastructure.Foosball.Persistence.Configurations;
 using Infrastructure.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 
