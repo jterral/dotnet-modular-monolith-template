@@ -1,4 +1,6 @@
 using Application.Shared;
+using Application.Shared.Behaviors;
+using Application.Shared.Events;
 using Application.Shared.Extensions;
 using Application.Shared.Messaging;
 using Domain.Shared;
@@ -75,6 +77,92 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.Equal(NameRequired, result.Error);
     }
 
+    [Fact]
+    public async Task AddCommandHandler_CommandWithoutResponse_LoggingWrapsTheOtherBehaviors()
+    {
+        // Arrange
+        await using ServiceProvider provider = BuildProvider(services => services
+            .AddCommandHandler<RenameCommand, RenameCommandHandler>());
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
+
+        // Act
+        ICommandHandler<RenameCommand> handler =
+            scope.ServiceProvider.GetRequiredService<ICommandHandler<RenameCommand>>();
+
+        // Assert
+        // Logging is the outermost decorator so that validation failures are logged too.
+        Assert.IsType<LoggingBehavior.CommandHandler<RenameCommand>>(handler);
+    }
+
+    [Fact]
+    public async Task AddCommandHandler_CommandWithResponseAndNoValidator_ReturnsHandlerResult()
+    {
+        // Arrange
+        await using ServiceProvider provider = BuildProvider(services => services
+            .AddCommandHandler<CreateCommand, Guid, CreateCommandHandler>());
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
+        ICommandHandler<CreateCommand, Guid> handler =
+            scope.ServiceProvider.GetRequiredService<ICommandHandler<CreateCommand, Guid>>();
+
+        // Act
+        Result<Guid> result = await handler.HandleAsync(
+            new CreateCommand(string.Empty),
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task AddQueryHandler_Query_ReturnsHandlerResult()
+    {
+        // Arrange
+        await using ServiceProvider provider = BuildProvider(services => services
+            .AddQueryHandler<GetNameQuery, string, GetNameQueryHandler>());
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
+        IQueryHandler<GetNameQuery, string> handler =
+            scope.ServiceProvider.GetRequiredService<IQueryHandler<GetNameQuery, string>>();
+
+        // Act
+        Result<string> result = await handler.HandleAsync(new GetNameQuery(), TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+        Assert.Equal("order", result.Value);
+    }
+
+    [Fact]
+    public async Task AddDomainEventHandler_Event_ResolvesTheRegisteredHandler()
+    {
+        // Arrange
+        await using ServiceProvider provider = BuildProvider(services => services
+            .AddDomainEventHandler<OrderPlaced, OrderPlacedHandler>());
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
+
+        // Act
+        IEnumerable<IDomainEventHandler<OrderPlaced>> handlers =
+            scope.ServiceProvider.GetServices<IDomainEventHandler<OrderPlaced>>();
+
+        // Assert
+        Assert.IsType<OrderPlacedHandler>(Assert.Single(handlers));
+    }
+
+    [Fact]
+    public async Task AddUnitOfWorkScope_TwoScopes_ShareTheSameInstance()
+    {
+        // Arrange
+        await using ServiceProvider provider = BuildProvider(services => services.AddUnitOfWorkScope());
+        await using AsyncServiceScope firstScope = provider.CreateAsyncScope();
+        await using AsyncServiceScope secondScope = provider.CreateAsyncScope();
+
+        // Act
+        var first = firstScope.ServiceProvider.GetRequiredService<UnitOfWorkScope>();
+        var second = secondScope.ServiceProvider.GetRequiredService<UnitOfWorkScope>();
+
+        // Assert
+        Assert.Same(first, second);
+    }
+
     private static ServiceProvider BuildProvider(Action<IServiceCollection> configure)
     {
         var services = new ServiceCollection();
@@ -112,5 +200,21 @@ public sealed class ServiceCollectionExtensionsTests
     {
         public Task<Result> ValidateAsync(RenameCommand instance, CancellationToken cancellationToken = default) =>
             Task.FromResult(string.IsNullOrEmpty(instance.Name) ? Result.Failure(NameRequired) : Result.Success());
+    }
+
+    private sealed record GetNameQuery : IQuery<string>;
+
+    private sealed class GetNameQueryHandler : IQueryHandler<GetNameQuery, string>
+    {
+        public Task<Result<string>> HandleAsync(GetNameQuery query, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Result.Success("order"));
+    }
+
+    private sealed record OrderPlaced : DomainEvent;
+
+    private sealed class OrderPlacedHandler : IDomainEventHandler<OrderPlaced>
+    {
+        public Task HandleAsync(OrderPlaced domainEvent, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
     }
 }
