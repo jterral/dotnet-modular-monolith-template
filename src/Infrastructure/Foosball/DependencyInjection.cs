@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Infrastructure.Foosball;
 
-public static class FoosballInfrastructureExtensions
+public static class DependencyInjection
 {
     public const string ConnectionStringName = "Foosball";
 

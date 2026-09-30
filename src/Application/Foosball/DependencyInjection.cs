@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.Foosball;
 
-public static class FoosballApplicationExtensions
+public static class DependencyInjection
 {
     public static IServiceCollection AddFoosballApplication(this IServiceCollection services)
     {
