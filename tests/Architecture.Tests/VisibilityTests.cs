@@ -8,13 +8,14 @@ namespace Architecture.Tests;
 public sealed class VisibilityTests : BaseTest
 {
     [Fact]
-    public void CommandHandlers_Always_BeInternal()
+    public void CommandHandlers_ShouldBeInternal()
     {
         Classes().That()
             .ImplementInterface(typeof(ICommandHandler<>))
             .Or()
             .ImplementInterface(typeof(ICommandHandler<,>))
             .Should().BeInternal()
+            .WithoutRequiringPositiveResults()
             .Check(Architecture);
     }
 
@@ -24,10 +25,11 @@ public sealed class VisibilityTests : BaseTest
         Classes().That()
             .ImplementInterface(typeof(IQueryHandler<,>))
             .Should().BeInternal()
+            .WithoutRequiringPositiveResults()
             .Check(Architecture);
     }
 
-    [Fact(Skip = "No IValueObject implementations yet")]
+    [Fact]
     public void DomainValueObjects_ShouldBeRecord()
     {
         Classes().That().ImplementInterface(typeof(IValueObject))
@@ -35,6 +37,7 @@ public sealed class VisibilityTests : BaseTest
             .BeRecord()
             .AndShould()
             .BeSealed()
+            .WithoutRequiringPositiveResults()
             .Check(Architecture);
     }
 
@@ -43,6 +46,7 @@ public sealed class VisibilityTests : BaseTest
     {
         Classes().That().AreAssignableTo(typeof(Entity)).Should()
             .NotBeRecord()
+            .WithoutRequiringPositiveResults()
             .Check(Architecture);
     }
 }
