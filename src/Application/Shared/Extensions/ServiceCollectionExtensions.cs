@@ -99,4 +99,12 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IValidator<TCommand>, TValidator>();
         return services;
     }
+
+    internal static IServiceCollection AddValidator<TCommand, TResponse, TValidator>(this IServiceCollection services)
+        where TCommand : ICommand<TResponse>
+        where TValidator : class, IValidator<TCommand>
+    {
+        services.AddScoped<IValidator<TCommand>, TValidator>();
+        return services;
+    }
 }

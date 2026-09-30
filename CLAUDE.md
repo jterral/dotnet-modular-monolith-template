@@ -33,7 +33,7 @@ Architecture tests will enforce these boundaries in a later PR. Until then, resp
 - **The pipeline is decorators built at registration.** `AddCommandHandler` / `AddQueryHandler` (`Application/Shared/Extensions/ServiceCollectionExtensions.cs`) wrap the handler in `ValidationBehavior` (commands only, runs every `IValidator<TCommand>`), then `LoggingBehavior`. A handler registered any other way skips the pipeline.
 - **Registration is explicit and happens inside the layer.** Those helpers and `DomainEventsDispatcher` are `internal`, so each module registers its own types from within `Application` / `Infrastructure` and exposes public `Add…` extension methods for its hosts. No assembly scanning. Startup work goes in an `IModuleInitializer`, aggregated through DI (`IEnumerable<IModuleInitializer>`).
 - **Persistence:** each module has its own `DbContext` targeting its own database, deriving from `Infrastructure/Shared/Persistence/ApplicationDbContext` (no `DbSet`, implements `IUnitOfWork`). SQLite via `Microsoft.EntityFrameworkCore.Sqlite`.
-- **Domain events:** raised with `AggregateRoot.Raise(...)`. `ApplicationDbContext.SaveChangesAsync` collects them from tracked aggregates, saves, **then** dispatches them in the same DI scope to every registered `IDomainEventHandler<TEvent>`.
+- **Domain events:** raised with `AggregateRoot.Raise(...)`. `ApplicationDbContext.SaveChangesAsync` collects them from tracked aggregates, saves, **then** dispatches them in the same DI scope to every registered `IDomainEventHandler<TEvent>`. Nothing saves on a handler's behalf: a handler that changes tracked entities must call `SaveChangesAsync` itself. If a handler throws, the data is already saved and the events are not replayed (no outbox).
 - **Hosts without a request scope** (workers, consumers) use `UnitOfWorkScope` or `ScopedExecutor` to open one scope per unit of work. Never use them from ASP.NET Core: they create a sibling scope, i.e. a second `DbContext`.
 
 ## Commands
@@ -62,6 +62,7 @@ CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and 
 
 - `Architecture.Tests` (ArchUnitNET) already enforce layer direction, `internal` handlers, `*CommandHandler` / `*QueryHandler` suffixes, `*Validator` classes living in Application, and entities not being records. Rules use `.WithoutRequiringPositiveResults()` so they pass on the empty template.
 - Rules that need a matching type (handler in the same namespace as its command/query, `IValueObject` being a sealed record) are inert on the empty template and activate on their own once such a type exists. There is no `Skip` to remove.
+- `Application` exposes its internals to `Application.UnitTests` (`InternalsVisibleTo`), which is how the `internal` registration helpers and handlers are tested.
 - `Infrastructure.DbTests` run against in-memory SQLite: no Docker or external database needed.
 - `Testing.Shared` holds helpers shared by every test project (e.g. `AssertEx`).
 

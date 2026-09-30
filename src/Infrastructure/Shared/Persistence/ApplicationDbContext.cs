@@ -17,9 +17,14 @@ public abstract class ApplicationDbContext(
 {
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // Events publies APRES le SaveChanges : l'etat est persiste avant que les handlers tournent.
-        // Les handlers partagent le scope, donc ce DbContext : ils peuvent reecrire dans la meme UoW.
-        // Pour publier AVANT (meme transaction stricte), deplace l'appel au-dessus de base.SaveChangesAsync.
+        // Events are dispatched AFTER the save: the state is persisted before any handler runs.
+        // Handlers share the scope, hence this DbContext, but nothing saves on their behalf: a handler
+        // that changes tracked entities must call SaveChangesAsync itself (events it raises are then
+        // dispatched by that nested call).
+        // Consequences of dispatching after the commit: if a handler throws, the data is already saved,
+        // the caller still gets the exception and the events are not replayed. There is no outbox, so
+        // events are also lost if the process dies between the save and the dispatch.
+        // To dispatch BEFORE the save (single transaction), move the call above base.SaveChangesAsync.
         var domainEvents = ExtractDomainEvents();
 
         var result = await base.SaveChangesAsync(cancellationToken);
