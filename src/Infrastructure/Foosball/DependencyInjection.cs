@@ -9,26 +9,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Foosball;
 
 public static class DependencyInjection
 {
-    public const string ConnectionStringName = "Foosball";
-
-    private const string DefaultConnectionString = "Data Source=foosball.db";
-
     public static IServiceCollection AddFoosballInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        string connectionString = configuration.GetConnectionString(ConnectionStringName) ?? DefaultConnectionString;
+        services
+            .AddOptions<FoosballOptions>()
+            .Bind(configuration.GetSection(FoosballOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         // TryAdd: the dispatcher is shared, every module registering itself must not replace it.
         services.TryAddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
-        services.AddDbContext<FoosballDbContext>(options => options
-            .UseSqlite(connectionString)
+        services.AddDbContext<FoosballDbContext>((provider, options) => options
+            .UseSqlite(provider.GetRequiredService<IOptions<FoosballOptions>>().Value.ConnectionString)
             .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IFoosballUnitOfWork>(provider => provider.GetRequiredService<FoosballDbContext>());
