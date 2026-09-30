@@ -38,7 +38,7 @@ public sealed class FoosballModuleTests : IAsyncLifetime
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Foosball:ConnectionString"] = _connectionString
+                ["ConnectionStrings:Foosball"] = _connectionString
             })
             .Build();
 
