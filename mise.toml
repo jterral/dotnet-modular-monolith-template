@@ -15,13 +15,20 @@ run = "dotnet build"
 description = "Clean build outputs"
 run = "dotnet clean"
 
-[tasks."dotnet:test"]
-description = "Run all tests"
-run = "dotnet test"
+[tasks."dotnet:ci:test"]
+description = "Run all tests as part of the CI pipeline"
+run = """
+dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~Architecture.Tests"
+dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~UnitTests"
+dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~DbTests"
+"""
 
-[tasks."dotnet:format"]
+[tasks."dotnet:ci:format"]
 description = "Verify formatting without changing files"
-run = "dotnet format --verify-no-changes"
+run = """
+dotnet format style --severity info --verify-no-changes
+dotnet format analyzers --severity info --verify-no-changes
+"""
 
 [tasks."db:postgres"]
 description = "Start a throwaway local PostgreSQL container"
