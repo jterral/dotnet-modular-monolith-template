@@ -13,6 +13,7 @@
     <Project Path="tests/Testing.Shared/Testing.Shared.csproj" Id="96403175-f33e-4847-86a8-385b0508b4f9" />
   </Folder>
   <Folder Name="/Hosts/">
+    <Project Path="src/Hosts/Foosball.Api/Foosball.Api.csproj" />
     <Project Path="src/Hosts/Foosball.Worker/Foosball.Worker.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
