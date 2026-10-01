@@ -7,6 +7,11 @@ uv = "0.12"
 dotnet = "10.0.401"
 "dotnet:dotnet-ef" = "10.0.12"
 
+[task_config]
+includes = [
+  "git::ssh://git@github.com/jterral/my-mise-tasks.git//tasks/precommit",
+]
+
 [tasks."dotnet:build"]
 description = "Build the solution"
 run = "dotnet build"
