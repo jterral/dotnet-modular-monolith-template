@@ -9,12 +9,6 @@ namespace Application.Shared.Extensions;
 
 internal static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddUnitOfWorkScope(this IServiceCollection services)
-    {
-        services.AddSingleton<UnitOfWorkScope>();
-        return services;
-    }
-
     internal static IServiceCollection AddCommandHandler<TCommand, THandler>(this IServiceCollection services)
         where TCommand : ICommand
         where THandler : class, ICommandHandler<TCommand>

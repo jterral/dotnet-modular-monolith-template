@@ -147,22 +147,6 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.IsType<OrderPlacedHandler>(Assert.Single(handlers));
     }
 
-    [Fact]
-    public async Task AddUnitOfWorkScope_TwoScopes_ShareTheSameInstance()
-    {
-        // Arrange
-        await using ServiceProvider provider = BuildProvider(services => services.AddUnitOfWorkScope());
-        await using AsyncServiceScope firstScope = provider.CreateAsyncScope();
-        await using AsyncServiceScope secondScope = provider.CreateAsyncScope();
-
-        // Act
-        var first = firstScope.ServiceProvider.GetRequiredService<UnitOfWorkScope>();
-        var second = secondScope.ServiceProvider.GetRequiredService<UnitOfWorkScope>();
-
-        // Assert
-        Assert.Same(first, second);
-    }
-
     private static ServiceProvider BuildProvider(Action<IServiceCollection> configure)
     {
         var services = new ServiceCollection();
