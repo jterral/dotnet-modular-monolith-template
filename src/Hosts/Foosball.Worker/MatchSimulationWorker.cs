@@ -4,10 +4,10 @@ using Application.Foosball.Matches.ScheduleMatch;
 using Application.Foosball.Matches.ScoreGoal;
 using Application.Foosball.Matches.StartMatch;
 using Application.Foosball.Players.Leaderboard;
-using Application.Shared;
 using Application.Shared.Messaging;
 using Domain.Foosball.Matches;
 using Domain.Shared;
+using Infrastructure.Shared.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Foosball.Worker;
@@ -17,7 +17,7 @@ namespace Foosball.Worker;
 /// and kicks off a new match between two random players when the table is free.
 /// </summary>
 internal sealed class MatchSimulationWorker(
-    UnitOfWorkScope unitOfWork,
+    ScopedExecutor scopedExecutor,
     IOptions<MatchSimulationOptions> options,
     ILogger<MatchSimulationWorker> logger) : BackgroundService
 {
@@ -71,67 +71,67 @@ internal sealed class MatchSimulationWorker(
         }
     }
 
-    private Task<IReadOnlyList<MatchResponse>> ListInProgressMatchesAsync(CancellationToken cancellationToken) =>
-        unitOfWork.ExecuteAsync<IReadOnlyList<MatchResponse>>(
-            async (services, token) =>
-            {
-                var handler = services
-                    .GetRequiredService<IQueryHandler<ListInProgressMatchesQuery, IReadOnlyList<MatchResponse>>>();
-                Result<IReadOnlyList<MatchResponse>> result = await handler.HandleAsync(new ListInProgressMatchesQuery(), token);
+    private async Task<IReadOnlyList<MatchResponse>> ListInProgressMatchesAsync(CancellationToken cancellationToken)
+    {
+        Result<IReadOnlyList<MatchResponse>> result = await scopedExecutor.ExecuteAsync<IQueryHandler<ListInProgressMatchesQuery, IReadOnlyList<MatchResponse>>, Result<IReadOnlyList<MatchResponse>>>(
+            (handler, token) => handler.HandleAsync(new ListInProgressMatchesQuery(), token), cancellationToken);
 
-                return result.IsSuccess ? result.Value : [];
-            },
+        return result.IsSuccess ? result.Value : [];
+    }
+
+    private async Task ScoreRandomGoalAsync(Guid matchId, CancellationToken cancellationToken)
+    {
+        Side side = Random.Shared.Next(2) == 0 ? Side.Red : Side.Blue;
+
+        // Failures are already logged by the logging behavior of the pipeline.
+        await scopedExecutor.ExecuteAsync<ICommandHandler<ScoreGoalCommand>>(
+            (handler, token) => handler.HandleAsync(new ScoreGoalCommand(matchId, side), token),
+            cancellationToken);
+    }
+
+    private async Task StartNewMatchAsync(CancellationToken cancellationToken)
+    {
+        Result<IReadOnlyList<LeaderboardEntry>> players = await scopedExecutor.ExecuteAsync<
+            IQueryHandler<LeaderboardQuery, IReadOnlyList<LeaderboardEntry>>,
+            Result<IReadOnlyList<LeaderboardEntry>>>(
+            (handler, token) => handler.HandleAsync(new LeaderboardQuery(PlayersPoolSize), token),
             cancellationToken);
 
-    private Task ScoreRandomGoalAsync(Guid matchId, CancellationToken cancellationToken) =>
-        unitOfWork.ExecuteAsync(
-            async (services, token) =>
-            {
-                var handler = services.GetRequiredService<ICommandHandler<ScoreGoalCommand>>();
-                Side side = Random.Shared.Next(2) == 0 ? Side.Red : Side.Blue;
+        if (players.IsFailure || players.Value.Count < 2)
+        {
+            logger.LogWarning("Not enough players to start a match");
 
-                // Failures are already logged by the logging behavior of the pipeline.
-                await handler.HandleAsync(new ScoreGoalCommand(matchId, side), token);
-            },
+            return;
+        }
+
+        IReadOnlyList<LeaderboardEntry> pool = players.Value;
+        int redIndex = Random.Shared.Next(pool.Count);
+        // Drawing among the remaining players guarantees two distinct ones.
+        int blueIndex = (redIndex + 1 + Random.Shared.Next(pool.Count - 1)) % pool.Count;
+
+        // Each handler saves on its own, so scheduling and starting are two units of work, hence two scopes.
+        Result<Guid> scheduled = await scopedExecutor.ExecuteAsync<
+            ICommandHandler<ScheduleMatchCommand, Guid>,
+            Result<Guid>>(
+            (handler, token) => handler.HandleAsync(
+                new ScheduleMatchCommand(pool[redIndex].PlayerId, pool[blueIndex].PlayerId),
+                token),
             cancellationToken);
 
-    private Task StartNewMatchAsync(CancellationToken cancellationToken) =>
-        unitOfWork.ExecuteAsync(
-            async (services, token) =>
-            {
-                var leaderboard = services
-                    .GetRequiredService<IQueryHandler<LeaderboardQuery, IReadOnlyList<LeaderboardEntry>>>();
-                Result<IReadOnlyList<LeaderboardEntry>> players = await leaderboard.HandleAsync(new LeaderboardQuery(PlayersPoolSize), token);
+        if (scheduled.IsFailure)
+        {
+            return;
+        }
 
-                if (players.IsFailure || players.Value.Count < 2)
-                {
-                    logger.LogWarning("Not enough players to start a match");
-
-                    return;
-                }
-
-                IReadOnlyList<LeaderboardEntry> pool = players.Value;
-                int redIndex = Random.Shared.Next(pool.Count);
-                // Drawing among the remaining players guarantees two distinct ones.
-                int blueIndex = (redIndex + 1 + Random.Shared.Next(pool.Count - 1)) % pool.Count;
-
-                var schedule = services.GetRequiredService<ICommandHandler<ScheduleMatchCommand, Guid>>();
-                Result<Guid> scheduled = await schedule.HandleAsync(
-                    new ScheduleMatchCommand(pool[redIndex].PlayerId, pool[blueIndex].PlayerId),
-                    token);
-
-                if (scheduled.IsFailure)
-                {
-                    return;
-                }
-
-                var start = services.GetRequiredService<ICommandHandler<StartMatchCommand>>();
-                await start.HandleAsync(new StartMatchCommand(scheduled.Value), token);
-
-                logger.LogInformation(
-                    "Kick-off: {Red} vs {Blue}",
-                    pool[redIndex].Name,
-                    pool[blueIndex].Name);
-            },
+        Result started = await scopedExecutor.ExecuteAsync<ICommandHandler<StartMatchCommand>, Result>(
+            (handler, token) => handler.HandleAsync(new StartMatchCommand(scheduled.Value), token),
             cancellationToken);
+
+        if (started.IsFailure)
+        {
+            return;
+        }
+
+        logger.LogInformation("Kick-off: {Red} vs {Blue}", pool[redIndex].Name, pool[blueIndex].Name);
+    }
 }

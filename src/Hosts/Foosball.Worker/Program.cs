@@ -2,10 +2,11 @@ using Application.Foosball;
 using Application.Shared;
 using Foosball.Worker;
 using Infrastructure.Foosball;
+using Infrastructure.Shared.Hosting;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddSingleton<UnitOfWorkScope>();
+builder.Services.AddSingleton<ScopedExecutor>();
 builder.Services.AddFoosballApplication();
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
 
