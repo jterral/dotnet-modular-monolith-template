@@ -33,6 +33,7 @@ paths:
 - Use camelCase for private fields and local variables.
 - Prefix interface names with "I" (e.g., IUserService).
 - Use Async suffix for async methods, except for overrides or interface implementations where the name is imposed by the base class or interface.
+- A method returning `Task` / `Task<T>` that calls awaitable code must be `async` and `await` it, rather than returning the inner task. Exception: members with no awaitable work (`Task.CompletedTask`, `Task.FromResult`), where `async` would only add a state machine and a CS1998 warning.
 
 ## Formatting
 
