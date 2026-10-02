@@ -1,0 +1,7 @@
+name: dotnet-modular-monolith-template
+version: 1.0.0
+target:
+  - claude
+dependencies:
+  apm:
+    - jterral/ai-playbook/plugins/git-workflow
