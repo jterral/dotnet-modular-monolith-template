@@ -4,4 +4,5 @@ target:
   - claude
 dependencies:
   apm:
+    - jterral/ai-playbook/plugins/dotnet
     - jterral/ai-playbook/plugins/git-workflow

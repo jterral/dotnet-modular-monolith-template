@@ -2,13 +2,27 @@ lockfile_version: '1'
 apm_version: 0.32.0
 dependencies:
 - repo_url: jterral/ai-playbook
+  name: dotnet
+  host: github.com
+  resolved_commit: fe1e7843c8741101187622cbf3bd8073527cc53d
+  version: fe1e784
+  virtual_path: plugins/dotnet
+  is_virtual: true
+  package_type: marketplace_plugin
+  deployed_files:
+  - .claude/skills/csharp-conventions
+  - .claude/skills/csharp-conventions/SKILL.md
+  deployed_file_hashes:
+    .claude/skills/csharp-conventions/SKILL.md: sha256:51107d7ac821782fcbdd18a5fcf03951a8d9c9ce0da2ba4a2181601356463119
+  content_hash: sha256:aa515d9a14d952197d6facdca89d5768d8579af0b51ccd898ebb0696146f5a6a
+- repo_url: jterral/ai-playbook
   name: git-workflow
   host: github.com
-  resolved_commit: 538d1acdfdc3cc3ba9edc0e9feee24a1a0e0ede4
-  version: 1.0.0
+  resolved_commit: fe1e7843c8741101187622cbf3bd8073527cc53d
+  version: fe1e784
   virtual_path: plugins/git-workflow
   is_virtual: true
-  package_type: skill_bundle
+  package_type: marketplace_plugin
   deployed_files:
   - .claude/skills/git-branch-naming
   - .claude/skills/git-branch-naming/SKILL.md
@@ -20,8 +34,26 @@ dependencies:
     .claude/skills/git-branch-naming/SKILL.md: sha256:015a38055a8f85af6f594e7c98479c7d26e25325a5bbaa45d2d4b38ad390738a
     .claude/skills/git-conventional-commit/SKILL.md: sha256:21eca89ed96a990849c578af58e174b2fc6b3b480e6e684360762ce5f98a921a
     .claude/skills/git-pull-request-formatting/SKILL.md: sha256:52b3aaf9543d5eca5a174b7f0f5d4323408a09be5950527d68f21ed9fa1bc494
-  content_hash: sha256:0eebaa47d7e3df3b66273105eeb4f30d04cb9468ba1a1bb62029da31a83035b2
+  content_hash: sha256:31c2b1a7e5b759b051f7d8c7e2b760131445b2868f2c1ebfed75eb7b669b98a3
 deployments:
+- kind: project-relative
+  target: claude
+  value: .claude/skills/csharp-conventions
+  runtime: null
+  scope: project
+  owners:
+  - jterral/ai-playbook/plugins/dotnet
+  active_owner: jterral/ai-playbook/plugins/dotnet
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/csharp-conventions/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - jterral/ai-playbook/plugins/dotnet
+  active_owner: jterral/ai-playbook/plugins/dotnet
+  content_hash: sha256:51107d7ac821782fcbdd18a5fcf03951a8d9c9ce0da2ba4a2181601356463119
 - kind: project-relative
   target: claude
   value: .claude/skills/git-branch-naming
