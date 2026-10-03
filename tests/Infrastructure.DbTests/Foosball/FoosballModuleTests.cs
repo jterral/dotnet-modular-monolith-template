@@ -165,28 +165,28 @@ public sealed class FoosballModuleTests : IAsyncLifetime
         return await work(scope.ServiceProvider);
     }
 
-    private Task<Result<Guid>> RegisterAsync(string name) =>
-        InScopeAsync(services => services
+    private async Task<Result<Guid>> RegisterAsync(string name) =>
+        await InScopeAsync(services => services
             .GetRequiredService<ICommandHandler<RegisterPlayerCommand, Guid>>()
             .HandleAsync(new RegisterPlayerCommand(name), TestContext.Current.CancellationToken));
 
-    private Task<Result<Guid>> ScheduleAsync(Guid redPlayerId, Guid bluePlayerId) =>
-        InScopeAsync(services => services
+    private async Task<Result<Guid>> ScheduleAsync(Guid redPlayerId, Guid bluePlayerId) =>
+        await InScopeAsync(services => services
             .GetRequiredService<ICommandHandler<ScheduleMatchCommand, Guid>>()
             .HandleAsync(new ScheduleMatchCommand(redPlayerId, bluePlayerId), TestContext.Current.CancellationToken));
 
-    private Task<Result> StartAsync(Guid matchId) =>
-        InScopeAsync(services => services
+    private async Task<Result> StartAsync(Guid matchId) =>
+        await InScopeAsync(services => services
             .GetRequiredService<ICommandHandler<StartMatchCommand>>()
             .HandleAsync(new StartMatchCommand(matchId), TestContext.Current.CancellationToken));
 
-    private Task<Result> ScoreAsync(Guid matchId, Side side) =>
-        InScopeAsync(services => services
+    private async Task<Result> ScoreAsync(Guid matchId, Side side) =>
+        await InScopeAsync(services => services
             .GetRequiredService<ICommandHandler<ScoreGoalCommand>>()
             .HandleAsync(new ScoreGoalCommand(matchId, side), TestContext.Current.CancellationToken));
 
-    private Task<Result<MatchResponse>> GetMatchAsync(Guid matchId) =>
-        InScopeAsync(services => services
+    private async Task<Result<MatchResponse>> GetMatchAsync(Guid matchId) =>
+        await InScopeAsync(services => services
             .GetRequiredService<IQueryHandler<GetMatchQuery, MatchResponse>>()
             .HandleAsync(new GetMatchQuery(matchId), TestContext.Current.CancellationToken));
 
