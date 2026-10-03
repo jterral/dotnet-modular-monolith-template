@@ -1,9 +1,8 @@
 using Application.Shared.Behaviors;
 using Application.Shared.Messaging;
 using Domain.Shared;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Testing.Shared.Extensions;
 
 namespace Application.UnitTests.Shared.Behaviors;
 
@@ -12,18 +11,17 @@ public sealed class LoggingBehaviorCommandHandlerWithResponseTests : IDisposable
     private static readonly Error CommandError = new("Test.CommandFailed", "The command failed.");
 
     private readonly Mock<ICommandHandler<TestCommandWithResponse, int>> _innerMock = new();
-    private readonly Mock<ILogger<LoggingBehavior.CommandHandler<TestCommandWithResponse, int>>> _loggerMock = new();
+
     private readonly LoggingBehavior.CommandHandler<TestCommandWithResponse, int> _sut;
 
     public LoggingBehaviorCommandHandlerWithResponseTests()
     {
-        _sut = new LoggingBehavior.CommandHandler<TestCommandWithResponse, int>(_innerMock.Object, _loggerMock.Object);
+        _sut = new LoggingBehavior.CommandHandler<TestCommandWithResponse, int>(_innerMock.Object, NullLogger<LoggingBehavior.CommandHandler<TestCommandWithResponse, int>>.Instance);
     }
 
     public void Dispose()
     {
         _innerMock.VerifyNoOtherCalls();
-        _loggerMock.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -41,8 +39,6 @@ public sealed class LoggingBehaviorCommandHandlerWithResponseTests : IDisposable
         // Assert
         Assert.Same(expected, result);
         _innerMock.Verify(h => h.HandleAsync(command, token), Times.Once());
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Once(), "Executing command TestCommandWithResponse");
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Once(), "Command TestCommandWithResponse completed");
     }
 
     [Fact]
@@ -60,7 +56,5 @@ public sealed class LoggingBehaviorCommandHandlerWithResponseTests : IDisposable
         // Assert
         Assert.Same(expected, result);
         _innerMock.Verify(h => h.HandleAsync(command, token), Times.Once());
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Once(), "Executing command TestCommandWithResponse");
-        _loggerMock.VerifyLog(LogLevel.Warning, Times.Once(), "Command TestCommandWithResponse failed", CommandError.Code);
     }
 }

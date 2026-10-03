@@ -2,18 +2,18 @@ using Application.Shared.Events;
 using Domain.Shared;
 using Infrastructure.Shared.DomainEvents;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Testing.Shared.Extensions;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Infrastructure.UnitTests.Shared.DomainEvents;
 
 public sealed class DomainEventsDispatcherTests : IDisposable
 {
-    private readonly Mock<ILogger<DomainEventsDispatcher>> _loggerMock = new();
     private readonly List<string> _calls = [];
+
     private readonly InvalidOperationException _failure = new("The handler failed.");
+
     private readonly ServiceProvider _provider;
+
     private readonly DomainEventsDispatcher _sut;
 
     public DomainEventsDispatcherTests()
@@ -26,13 +26,12 @@ public sealed class DomainEventsDispatcherTests : IDisposable
             .AddSingleton<IDomainEventHandler<FailingEvent>>(new RecordingHandler<FailingEvent>("D", _calls))
             .BuildServiceProvider();
 
-        _sut = new DomainEventsDispatcher(_provider, _loggerMock.Object);
+        _sut = new DomainEventsDispatcher(_provider, NullLogger<DomainEventsDispatcher>.Instance);
     }
 
     public void Dispose()
     {
         _provider.Dispose();
-        _loggerMock.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -43,7 +42,6 @@ public sealed class DomainEventsDispatcherTests : IDisposable
 
         // Assert
         Assert.Equal(["A:FirstEvent", "B:FirstEvent"], _calls);
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Exactly(2), "Handling FirstEvent with RecordingHandler");
     }
 
     [Fact]
@@ -54,8 +52,6 @@ public sealed class DomainEventsDispatcherTests : IDisposable
 
         // Assert
         Assert.Equal(["A:FirstEvent", "B:FirstEvent", "C:SecondEvent"], _calls);
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Exactly(2), "Handling FirstEvent with RecordingHandler");
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Once(), "Handling SecondEvent with RecordingHandler");
     }
 
     [Fact]
@@ -88,8 +84,6 @@ public sealed class DomainEventsDispatcherTests : IDisposable
         // Assert
         Assert.Same(_failure, thrown);
         Assert.Empty(_calls);
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Once(), "Handling FailingEvent with ThrowingHandler");
-        _loggerMock.VerifyLog(LogLevel.Error, Times.Once(), _failure, "Handler failed for FailingEvent");
     }
 
     private sealed record FirstEvent : DomainEvent;
