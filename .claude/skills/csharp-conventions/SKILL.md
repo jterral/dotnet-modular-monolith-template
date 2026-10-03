@@ -95,3 +95,4 @@ Applies to projects that expose an HTTP API. The XML comments feed the OpenAPI/S
 - Initialize mocks inline with `new Mock<T>()`
 - Initialize `_sut` in the constructor using the mocked `.Object` properties — never inline
 - Implement `IDisposable` and call `VerifyNoOtherCalls()` on every mock in `Dispose`
+- **Never** mock or verify `ILogger` / `ILogger<T>` — logging is not behavior under test. Inject `NullLogger<T>.Instance` from `Microsoft.Extensions.Logging.Abstractions` instead (e.g. `new MyService(_repositoryMock.Object, NullLogger<MyService>.Instance)`), and do not declare a `_loggerMock` field.
