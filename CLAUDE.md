@@ -77,7 +77,7 @@ CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and 
 - `Application` exposes its internals to `Application.UnitTests`, and `Infrastructure` to `Infrastructure.UnitTests` and `Infrastructure.DbTests` (`InternalsVisibleTo`), which is how the `internal` helpers, behaviors and dispatcher are tested. Both also expose them to `DynamicProxyGenAssembly2` so Moq can mock `ILogger<T>` where `T` is internal; types used as generic arguments of a mocked interface must be `public` in the test project.
 - Use Moq for dependencies, except for `IDomainEventHandler<T>`: Moq intercepts its default interface method, so tests use small real handler classes.
 - `Infrastructure.DbTests` run against in-memory SQLite: no Docker or external database needed. `ApplicationDbContextTests` pin the domain event semantics described above.
-- `Testing.Shared` holds helpers shared by every test project (`AssertEx`, and `VerifyLog` to assert on `Mock<ILogger<T>>`).
+- `Testing.Shared` holds helpers shared by every test project (`AssertEx`).
 
 ## Conventions
 
