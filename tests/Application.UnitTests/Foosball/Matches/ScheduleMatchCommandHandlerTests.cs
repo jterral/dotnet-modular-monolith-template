@@ -106,5 +106,8 @@ public sealed class ScheduleMatchCommandHandlerTests : IDisposable
         _matchesMock.Verify(m => m.HasUnfinishedMatchAsync(red.Id, token), Times.Once());
     }
 
-    private static Player NewPlayer(string name) => Player.Create(PlayerName.Create(name).Value);
+    private static Player NewPlayer(string name)
+    {
+        return Player.Create(PlayerName.Create(name).Value);
+    }
 }

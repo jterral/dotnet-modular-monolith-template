@@ -24,7 +24,10 @@ public sealed class Order : AggregateRoot
         return order;
     }
 
-    public void Rename(string name) => Name = name;
+    public void Rename(string name)
+    {
+        Name = name;
+    }
 }
 
 public sealed class TestDbContext(DbContextOptions<TestDbContext> options, IDomainEventsDispatcher domainEventsDispatcher)

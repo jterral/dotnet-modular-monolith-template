@@ -11,7 +11,8 @@ public static class LoggerMockExtensions
         this Mock<ILogger<T>> loggerMock,
         LogLevel level,
         Times times,
-        params string[] expectedParts) =>
+        params string[] expectedParts)
+    {
         loggerMock.Verify(
             logger => logger.Log(
                 level,
@@ -20,13 +21,15 @@ public static class LoggerMockExtensions
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             times);
+    }
 
     public static void VerifyLog<T>(
         this Mock<ILogger<T>> loggerMock,
         LogLevel level,
         Times times,
         Exception exception,
-        params string[] expectedParts) =>
+        params string[] expectedParts)
+    {
         loggerMock.Verify(
             logger => logger.Log(
                 level,
@@ -35,6 +38,7 @@ public static class LoggerMockExtensions
                 It.Is<Exception?>(actual => ReferenceEquals(actual, exception)),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             times);
+    }
 
     // Public because Moq evaluates the expression tree above outside of this assembly.
     public static bool ContainsAll(object state, string[] expectedParts)

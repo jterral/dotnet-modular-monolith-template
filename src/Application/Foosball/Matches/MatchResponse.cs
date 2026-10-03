@@ -11,12 +11,15 @@ public sealed record MatchResponse(
     MatchStatus Status,
     Guid? WinnerId)
 {
-    internal static MatchResponse From(Match match) => new(
-        match.Id,
-        match.RedPlayerId,
-        match.BluePlayerId,
-        match.RedScore,
-        match.BlueScore,
-        match.Status,
-        match.WinnerId);
+    internal static MatchResponse From(Match match)
+    {
+        return new(
+            match.Id,
+            match.RedPlayerId,
+            match.BluePlayerId,
+            match.RedScore,
+            match.BlueScore,
+            match.Status,
+            match.WinnerId);
+    }
 }

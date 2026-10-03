@@ -8,7 +8,9 @@ public class ColocationTests : BaseTest
     [Theory(SkipTestWithoutData = true)]
     [MemberData(nameof(GetHandlerAndCommandPairs))]
     public void Handlers_ShouldResideInSameNamespace_AsTheirCommandOrQuery(Type handlerType, Type commandOrQueryType)
-        => AssertEx.Equal(handlerType.Namespace, commandOrQueryType.Namespace, $"{handlerType.Name} should be in the same namespace as {commandOrQueryType.Name}");
+    {
+        AssertEx.Equal(handlerType.Namespace, commandOrQueryType.Namespace, $"{handlerType.Name} should be in the same namespace as {commandOrQueryType.Name}");
+    }
 
     public static TheoryData<Type, Type> GetHandlerAndCommandPairs()
     {

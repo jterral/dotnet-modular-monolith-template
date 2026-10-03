@@ -47,8 +47,10 @@ public sealed class DependencyInjectionTests
         Assert.NotEmpty(services);
     }
 
-    private static IConfiguration WithConnectionString(string connectionString) =>
-        new ConfigurationBuilder()
+    private static IConfiguration WithConnectionString(string connectionString)
+    {
+        return new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> { [$"ConnectionStrings:{DependencyInjection.ConnectionStringName}"] = connectionString })
             .Build();
+    }
 }
