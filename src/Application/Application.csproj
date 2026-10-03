@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
-    <!-- Lets Moq (Castle DynamicProxy) mock ILogger<T> where T is an internal type. -->
+    <!-- Lets Moq (Castle DynamicProxy) mock internal types. -->
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
