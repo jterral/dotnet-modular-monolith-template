@@ -29,10 +29,7 @@ public sealed class DomainEventsDispatcherTests : IDisposable
         _sut = new DomainEventsDispatcher(_provider, NullLogger<DomainEventsDispatcher>.Instance);
     }
 
-    public void Dispose()
-    {
-        _provider.Dispose();
-    }
+    public void Dispose() => _provider.Dispose();
 
     [Fact]
     public async Task DispatchAsync_EventWithTwoHandlers_InvokesBothInRegistrationOrder()

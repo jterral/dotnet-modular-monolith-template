@@ -19,10 +19,7 @@ public sealed class LoggingBehaviorQueryHandlerTests : IDisposable
         _sut = new LoggingBehavior.QueryHandler<TestQuery, int>(_innerMock.Object, NullLogger<LoggingBehavior.QueryHandler<TestQuery, int>>.Instance);
     }
 
-    public void Dispose()
-    {
-        _innerMock.VerifyNoOtherCalls();
-    }
+    public void Dispose() => _innerMock.VerifyNoOtherCalls();
 
     [Fact]
     public async Task HandleAsync_SuccessfulQuery_LogsOnlyTheStart()

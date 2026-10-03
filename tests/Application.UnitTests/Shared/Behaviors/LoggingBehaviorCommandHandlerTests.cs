@@ -19,10 +19,7 @@ public sealed class LoggingBehaviorCommandHandlerTests : IDisposable
         _sut = new LoggingBehavior.CommandHandler<TestCommand>(_innerMock.Object, NullLogger<LoggingBehavior.CommandHandler<TestCommand>>.Instance);
     }
 
-    public void Dispose()
-    {
-        _innerMock.VerifyNoOtherCalls();
-    }
+    public void Dispose() => _innerMock.VerifyNoOtherCalls();
 
     [Fact]
     public async Task HandleAsync_SuccessfulCommand_LogsStartAndCompletion()
