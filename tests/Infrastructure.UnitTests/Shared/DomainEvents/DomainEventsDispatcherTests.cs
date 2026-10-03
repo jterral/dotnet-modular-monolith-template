@@ -115,9 +115,7 @@ public sealed class DomainEventsDispatcherTests : IDisposable
 
     private sealed class ThrowingHandler(Exception failure) : IDomainEventHandler<FailingEvent>
     {
-        public Task HandleAsync(FailingEvent domainEvent, CancellationToken cancellationToken = default)
-        {
-            return Task.FromException(failure);
-        }
+        public Task HandleAsync(FailingEvent domainEvent, CancellationToken cancellationToken = default) =>
+            Task.FromException(failure);
     }
 }

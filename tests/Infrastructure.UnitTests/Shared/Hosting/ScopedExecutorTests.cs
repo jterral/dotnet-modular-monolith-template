@@ -14,10 +14,7 @@ public sealed class ScopedExecutorTests : IDisposable
         _sut = new ScopedExecutor(_provider.GetRequiredService<IServiceScopeFactory>());
     }
 
-    public void Dispose()
-    {
-        _provider.Dispose();
-    }
+    public void Dispose() => _provider.Dispose();
 
     [Fact]
     public async Task ExecuteAsync_Work_ReceivesTheServiceAndTheCancellationToken()
@@ -189,10 +186,7 @@ public sealed class ScopedExecutorTests : IDisposable
     {
         public bool IsDisposed { get; private set; }
 
-        public void Dispose()
-        {
-            IsDisposed = true;
-        }
+        public void Dispose() => IsDisposed = true;
     }
 
     private sealed class UnregisteredService;

@@ -12,8 +12,6 @@ public interface IDomainEventHandler<in TDomainEvent> : IDomainEventHandler
 {
     Task HandleAsync(TDomainEvent domainEvent, CancellationToken cancellationToken = default);
 
-    Task IDomainEventHandler.HandleAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
-    {
-        return HandleAsync((TDomainEvent)domainEvent, cancellationToken);
-    }
+    Task IDomainEventHandler.HandleAsync(IDomainEvent domainEvent, CancellationToken cancellationToken) =>
+        HandleAsync((TDomainEvent)domainEvent, cancellationToken);
 }

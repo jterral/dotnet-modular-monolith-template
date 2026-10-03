@@ -97,8 +97,5 @@ public sealed class MatchCommandHandlersTests : IDisposable
         _matchesMock.Verify(m => m.GetByIdAsync(match.Id, token), Times.Once());
     }
 
-    private static Match NewMatch()
-    {
-        return Match.Schedule(Guid.CreateVersion7(), Guid.CreateVersion7()).Value;
-    }
+    private static Match NewMatch() => Match.Schedule(Guid.CreateVersion7(), Guid.CreateVersion7()).Value;
 }

@@ -162,55 +162,43 @@ public sealed class ServiceCollectionExtensionsTests
 
     private sealed class CreateCommandHandler : ICommandHandler<CreateCommand, Guid>
     {
-        public Task<Result<Guid>> HandleAsync(CreateCommand command, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(Result.Success(Guid.CreateVersion7()));
-        }
+        public Task<Result<Guid>> HandleAsync(CreateCommand command, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Result.Success(Guid.CreateVersion7()));
     }
 
     private sealed class CreateCommandValidator : IValidator<CreateCommand>
     {
-        public Task<Result> ValidateAsync(CreateCommand instance, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(string.IsNullOrEmpty(instance.Name) ? Result.Failure(NameRequired) : Result.Success());
-        }
+        public Task<Result> ValidateAsync(CreateCommand instance, CancellationToken cancellationToken = default) =>
+            Task.FromResult(string.IsNullOrEmpty(instance.Name) ? Result.Failure(NameRequired) : Result.Success());
     }
 
     private sealed record RenameCommand(string Name) : ICommand;
 
     private sealed class RenameCommandHandler : ICommandHandler<RenameCommand>
     {
-        public Task<Result> HandleAsync(RenameCommand command, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(Result.Success());
-        }
+        public Task<Result> HandleAsync(RenameCommand command, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Result.Success());
     }
 
     private sealed class RenameCommandValidator : IValidator<RenameCommand>
     {
-        public Task<Result> ValidateAsync(RenameCommand instance, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(string.IsNullOrEmpty(instance.Name) ? Result.Failure(NameRequired) : Result.Success());
-        }
+        public Task<Result> ValidateAsync(RenameCommand instance, CancellationToken cancellationToken = default) =>
+            Task.FromResult(string.IsNullOrEmpty(instance.Name) ? Result.Failure(NameRequired) : Result.Success());
     }
 
     private sealed record GetNameQuery : IQuery<string>;
 
     private sealed class GetNameQueryHandler : IQueryHandler<GetNameQuery, string>
     {
-        public Task<Result<string>> HandleAsync(GetNameQuery query, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(Result.Success("order"));
-        }
+        public Task<Result<string>> HandleAsync(GetNameQuery query, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Result.Success("order"));
     }
 
     private sealed record OrderPlaced : DomainEvent;
 
     private sealed class OrderPlacedHandler : IDomainEventHandler<OrderPlaced>
     {
-        public Task HandleAsync(OrderPlaced domainEvent, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        public Task HandleAsync(OrderPlaced domainEvent, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
     }
 }

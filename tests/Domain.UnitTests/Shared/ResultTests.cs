@@ -31,19 +31,15 @@ public sealed class ResultTests
     }
 
     [Fact]
-    public void Failure_WithNoneError_Throws()
-    {
+    public void Failure_WithNoneError_Throws() =>
         // Act / Assert
         Assert.Throws<InvalidOperationException>(() => Result.Failure(Error.None));
-    }
 
     [Fact]
-    public void Failure_WithNullError_Throws()
-    {
+    public void Failure_WithNullError_Throws() =>
         // Act / Assert
         // Null is passed on purpose to exercise the guard; the compiler would otherwise reject it.
         Assert.Throws<ArgumentNullException>(() => Result.Failure(null!));
-    }
 
     [Fact]
     public void SuccessOfT_WithValue_ExposesTheValue()
@@ -79,11 +75,9 @@ public sealed class ResultTests
     }
 
     [Fact]
-    public void FailureOfT_WithNoneError_Throws()
-    {
+    public void FailureOfT_WithNoneError_Throws() =>
         // Act / Assert
         Assert.Throws<InvalidOperationException>(() => Result.Failure<int>(Error.None));
-    }
 
     [Fact]
     public void ImplicitConversion_FromValue_CreatesSuccessfulResult()

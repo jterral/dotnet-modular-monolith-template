@@ -27,8 +27,5 @@ public sealed record PlayerName : IValueObject
         return new PlayerName(trimmed);
     }
 
-    public override string ToString()
-    {
-        return Value;
-    }
+    public override string ToString() => Value;
 }

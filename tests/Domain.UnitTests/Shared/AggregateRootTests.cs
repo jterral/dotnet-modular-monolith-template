@@ -67,9 +67,6 @@ public sealed class AggregateRootTests
 
     private sealed class TestAggregate : AggregateRoot
     {
-        public void RaiseEvent(IDomainEvent domainEvent)
-        {
-            Raise(domainEvent);
-        }
+        public void RaiseEvent(IDomainEvent domainEvent) => Raise(domainEvent);
     }
 }

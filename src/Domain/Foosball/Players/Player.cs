@@ -14,13 +14,7 @@ public sealed class Player : AggregateRoot
 
     public EloRating Rating { get; private set; } = EloRating.Initial;
 
-    public static Player Create(PlayerName name)
-    {
-        return new() { Name = name };
-    }
+    public static Player Create(PlayerName name) => new() { Name = name };
 
-    public void UpdateRating(EloRating rating)
-    {
-        Rating = rating;
-    }
+    public void UpdateRating(EloRating rating) => Rating = rating;
 }

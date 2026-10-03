@@ -156,10 +156,7 @@ public sealed class MatchTests
         Assert.Equal(0, match.BlueScore);
     }
 
-    private Match NewMatch()
-    {
-        return Match.Schedule(_redId, _blueId).Value;
-    }
+    private Match NewMatch() => Match.Schedule(_redId, _blueId).Value;
 
     private Match NewStartedMatch()
     {

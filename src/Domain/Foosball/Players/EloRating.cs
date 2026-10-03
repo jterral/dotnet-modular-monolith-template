@@ -13,13 +13,7 @@ public sealed record EloRating : IValueObject
     public int Points { get; }
 
     // A rating can never go below zero: clamping keeps the invariant without forcing every caller to handle a failure.
-    public static EloRating FromPoints(int points)
-    {
-        return new(Math.Max(0, points));
-    }
+    public static EloRating FromPoints(int points) => new(Math.Max(0, points));
 
-    public override string ToString()
-    {
-        return Points.ToString();
-    }
+    public override string ToString() => Points.ToString();
 }

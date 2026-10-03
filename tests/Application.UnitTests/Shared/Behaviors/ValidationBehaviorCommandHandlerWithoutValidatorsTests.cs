@@ -16,10 +16,7 @@ public sealed class ValidationBehaviorCommandHandlerWithoutValidatorsTests : IDi
         _sut = new ValidationBehavior.CommandHandler<TestCommand>(_innerMock.Object, []);
     }
 
-    public void Dispose()
-    {
-        _innerMock.VerifyNoOtherCalls();
-    }
+    public void Dispose() => _innerMock.VerifyNoOtherCalls();
 
     [Fact]
     public async Task HandleAsync_NoValidatorRegistered_ReturnsTheInnerResult()
