@@ -7,9 +7,11 @@ using Application.Shared.Messaging;
 using Domain.Shared;
 using Foosball.Api;
 using Infrastructure.Foosball;
+using Infrastructure.Shared.Logging;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSerilogLogging(builder.Configuration);
 builder.Services.AddFoosballApplication();
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
 
@@ -42,6 +44,9 @@ app.MapGet("/foosball", async (
     return players.IsFailure
         ? Results.Problem(players.Error.Description, statusCode: StatusCodes.Status500InternalServerError)
         : Results.Ok(new FoosballOverview("players", [], players.Value));
-});
+})
+.WithSummary("Returns the matches in progress, or the players when no match is in progress.")
+.Produces<FoosballOverview>()
+.ProducesProblem(StatusCodes.Status500InternalServerError);
 
 await app.RunAsync();

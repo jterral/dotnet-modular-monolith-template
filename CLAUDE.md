@@ -45,7 +45,8 @@ A foosball (table football) league: `Player` (name + Elo rating) and `Match` (fi
 
 - Wiring: `AddFoosballApplication()` and `AddFoosballInfrastructure(configuration)` (standard `ConnectionStrings:Foosball`, required and checked at registration, no default, a leftover `__PLACEHOLDER__` is rejected; the Worker's `appsettings.json` holds the placeholder `__SQLITE_DB_PATH__` for the deployment to replace, `appsettings.Development.json` points it at the git-ignored SQLite file `foosball.db`, `appsettings.Production.json` only configures the Seq sink). `FoosballModuleInitializer` creates the schema (`EnsureCreated`, no migrations yet) and seeds four players.
 - The module has its own `IFoosballUnitOfWork` (implemented by `FoosballDbContext`) so several modules never compete for `IUnitOfWork`.
-- Run it: `dotnet run --project src/Hosts/Foosball.Worker` (the launch profile sets `DOTNET_ENVIRONMENT=Development`; tick interval: `MatchSimulation:TickInterval`).
+- `Foosball.Api` (minimal API, single `GET /foosball`): returns the matches in progress, or the players ranked by rating when there are none. It only reuses the existing `ListInProgressMatchesQuery` / `LeaderboardQuery`. Run it: `dotnet run --project src/Hosts/Foosball.Api` (`http://localhost:5080`).
+- Run the Worker: `dotnet run --project src/Hosts/Foosball.Worker` (the launch profile sets `DOTNET_ENVIRONMENT=Development`; tick interval: `MatchSimulation:TickInterval`).
 
 ## Commands
 
