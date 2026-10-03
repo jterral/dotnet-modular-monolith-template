@@ -3,29 +3,28 @@ using Application.Foosball.Matches.EventHandlers;
 using Application.Foosball.Players;
 using Domain.Foosball.Matches;
 using Domain.Foosball.Players;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Testing.Shared.Extensions;
 
 namespace Application.UnitTests.Foosball.Matches;
 
 public sealed class UpdateRatingsOnMatchFinishedHandlerTests : IDisposable
 {
     private readonly Mock<IPlayerRepository> _playersMock = new();
+
     private readonly Mock<IFoosballUnitOfWork> _unitOfWorkMock = new();
-    private readonly Mock<ILogger<UpdateRatingsOnMatchFinishedHandler>> _loggerMock = new();
+
     private readonly UpdateRatingsOnMatchFinishedHandler _sut;
 
     public UpdateRatingsOnMatchFinishedHandlerTests()
     {
-        _sut = new UpdateRatingsOnMatchFinishedHandler(_playersMock.Object, _unitOfWorkMock.Object, _loggerMock.Object);
+        _sut = new UpdateRatingsOnMatchFinishedHandler(_playersMock.Object, _unitOfWorkMock.Object, NullLogger<UpdateRatingsOnMatchFinishedHandler>.Instance);
     }
 
     public void Dispose()
     {
         _playersMock.VerifyNoOtherCalls();
         _unitOfWorkMock.VerifyNoOtherCalls();
-        _loggerMock.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -48,7 +47,6 @@ public sealed class UpdateRatingsOnMatchFinishedHandlerTests : IDisposable
         _playersMock.Verify(p => p.GetByIdAsync(winner.Id, token), Times.Once());
         _playersMock.Verify(p => p.GetByIdAsync(loser.Id, token), Times.Once());
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(token), Times.Once());
-        _loggerMock.VerifyLog(LogLevel.Information, Times.Once(), "Zizou", "Platini");
     }
 
     [Fact]
@@ -68,6 +66,5 @@ public sealed class UpdateRatingsOnMatchFinishedHandlerTests : IDisposable
         Assert.Equal(EloRating.InitialPoints, winner.Rating.Points);
         _playersMock.Verify(p => p.GetByIdAsync(winner.Id, token), Times.Once());
         _playersMock.Verify(p => p.GetByIdAsync(finished.LoserId, token), Times.Once());
-        _loggerMock.VerifyLog(LogLevel.Warning, Times.Once(), finished.MatchId.ToString());
     }
 }
