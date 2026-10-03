@@ -3,9 +3,11 @@ using Application.Shared;
 using Foosball.Worker;
 using Infrastructure.Foosball;
 using Infrastructure.Shared.Hosting;
+using Infrastructure.Shared.Logging;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
+builder.Services.AddSerilogLogging(builder.Configuration);
 builder.Services.AddSingleton<ScopedExecutor>();
 builder.Services.AddFoosballApplication();
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
