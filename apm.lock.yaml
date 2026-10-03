@@ -8,7 +8,7 @@ dependencies:
   version: fe1e784
   virtual_path: plugins/dotnet
   is_virtual: true
-  package_type: marketplace_plugin
+  package_type: skill_bundle
   deployed_files:
   - .claude/skills/csharp-conventions
   - .claude/skills/csharp-conventions/SKILL.md
@@ -22,7 +22,7 @@ dependencies:
   version: fe1e784
   virtual_path: plugins/git-workflow
   is_virtual: true
-  package_type: marketplace_plugin
+  package_type: skill_bundle
   deployed_files:
   - .claude/skills/git-branch-naming
   - .claude/skills/git-branch-naming/SKILL.md
