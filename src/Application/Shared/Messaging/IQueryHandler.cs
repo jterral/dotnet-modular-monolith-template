@@ -2,7 +2,7 @@ using Domain.Shared;
 
 namespace Application.Shared.Messaging;
 
-// Aligné sur ICommandHandler : HandleAsync, CancellationToken optionnel.
+// Aligned with ICommandHandler: HandleAsync, optional CancellationToken.
 public interface IQueryHandler<in TQuery, TResponse>
     where TQuery : IQuery<TResponse>
 {
