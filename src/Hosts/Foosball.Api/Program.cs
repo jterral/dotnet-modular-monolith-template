@@ -2,7 +2,6 @@ using Application.Foosball;
 using Application.Foosball.Matches;
 using Application.Foosball.Matches.ListInProgressMatches;
 using Application.Foosball.Players.Leaderboard;
-using Application.Shared;
 using Application.Shared.Messaging;
 using Domain.Shared;
 using Foosball.Api;
@@ -16,12 +15,6 @@ builder.Services.AddFoosballApplication();
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
 
 WebApplication app = builder.Build();
-
-// Creates the schema when the API starts before the Worker (EnsureCreated and the seed are idempotent).
-foreach (IModuleInitializer initializer in app.Services.GetServices<IModuleInitializer>())
-{
-    await initializer.InitialiseAsync();
-}
 
 // Matches in progress when there are any, the players (by rating) otherwise.
 app.MapGet("/foosball", async (
