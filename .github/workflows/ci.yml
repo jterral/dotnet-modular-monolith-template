@@ -41,7 +41,7 @@ jobs:
           global-json-file: global.json
           cache: true
           cache-dependency-path: "**/packages.lock.json"
-      - run: dotnet restore --configfile nuget.config
+      - run: dotnet restore --locked-mode --configfile nuget.config
       - run: dotnet build --no-restore -p:TreatWarningsAsErrors=true
       - run: dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~Architecture.Tests"
       - run: dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~UnitTests"
