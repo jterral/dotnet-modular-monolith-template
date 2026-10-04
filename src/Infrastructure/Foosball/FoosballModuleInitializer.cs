@@ -3,22 +3,32 @@ using Domain.Foosball.Players;
 using Infrastructure.Foosball.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Foosball;
 
-internal sealed class FoosballModuleInitializer(IServiceScopeFactory scopeFactory) : IModuleInitializer
+internal sealed class FoosballModuleInitializer(
+    IServiceScopeFactory scopeFactory,
+    ILogger<FoosballModuleInitializer> logger) : IModuleInitializer
 {
     private static readonly string[] SeedPlayerNames = ["Zizou", "Platini", "Kopa", "Mbappe"];
 
     public string ModuleName => "Foosball";
 
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+
+    private readonly ILogger _logger = logger;
+
     public async Task InitialiseAsync(CancellationToken cancellationToken = default)
     {
-        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         FoosballDbContext context = scope.ServiceProvider.GetRequiredService<FoosballDbContext>();
 
-        // No migrations in the template yet: EnsureCreated builds the schema on an empty database.
-        await context.Database.EnsureCreatedAsync(cancellationToken);
+        _logger.LogInformation("Foosball database: {Database}", context.Database.GetDbConnection().DataSource);
+
+        await context.Database.MigrateAsync(cancellationToken);
+
+        _logger.LogInformation("Foosball migrations applied");
 
         if (await context.Players.AnyAsync(cancellationToken))
         {

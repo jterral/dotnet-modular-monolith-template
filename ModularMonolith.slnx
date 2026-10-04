@@ -1,18 +1,19 @@
 <Solution>
   <Folder Name="/Core/">
-    <Project Path="src/Application/Application.csproj" Id="35de2e75-4253-487f-b602-33ea220d786e" />
+    <Project Path="src/Application/Application.csproj" />
     <Project Path="src/Domain/Domain.csproj" />
-    <Project Path="src/Infrastructure/Infrastructure.csproj" Id="6449ca12-2752-406a-974d-b6b5601e63d2" />
+    <Project Path="src/Infrastructure/Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Core/Tests/">
-    <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" Id="03d5a4aa-b8ff-4e02-a45f-c2cc4b2520a3" />
-    <Project Path="tests/Architecture.Tests/Architecture.Tests.csproj" Id="b6bebba2-73be-4c42-bce8-2020490070d6" />
-    <Project Path="tests/Domain.UnitTests/Domain.UnitTests.csproj" Id="639ed7c2-33f0-405d-b648-04dc0efec11e" />
-    <Project Path="tests/Infrastructure.DbTests/Infrastructure.DbTests.csproj" Id="60dc5d9c-12b3-44c0-8f8d-97893a860062" />
-    <Project Path="tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" Id="e578e76f-181b-44d6-9465-697a06f71109" />
-    <Project Path="tests/Testing.Shared/Testing.Shared.csproj" Id="96403175-f33e-4847-86a8-385b0508b4f9" />
+    <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />
+    <Project Path="tests/Architecture.Tests/Architecture.Tests.csproj" />
+    <Project Path="tests/Domain.UnitTests/Domain.UnitTests.csproj" />
+    <Project Path="tests/Infrastructure.DbTests/Infrastructure.DbTests.csproj" />
+    <Project Path="tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" />
+    <Project Path="tests/Testing.Shared/Testing.Shared.csproj" />
   </Folder>
   <Folder Name="/Hosts/">
+    <Project Path="src/Hosts/Foosball.Migrator/Foosball.Migrator.csproj" />
     <Project Path="src/Hosts/Foosball.Worker/Foosball.Worker.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
