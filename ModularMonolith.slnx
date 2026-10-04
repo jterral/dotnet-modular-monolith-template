@@ -13,6 +13,7 @@
     <Project Path="tests/Testing.Shared/Testing.Shared.csproj" />
   </Folder>
   <Folder Name="/Hosts/">
+    <Project Path="src/Hosts/Foosball.Api/Foosball.Api.csproj" />
     <Project Path="src/Hosts/Foosball.Migrator/Foosball.Migrator.csproj" />
     <Project Path="src/Hosts/Foosball.Worker/Foosball.Worker.csproj" />
   </Folder>

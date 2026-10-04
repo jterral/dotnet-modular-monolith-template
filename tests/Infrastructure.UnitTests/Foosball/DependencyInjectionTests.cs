@@ -24,7 +24,7 @@ public sealed class DependencyInjectionTests
     public void AddFoosballInfrastructure_UnreplacedPlaceholder_Throws()
     {
         // Arrange
-        IConfiguration configuration = WithConnectionString("Data Source=__SQLITE_DB_PATH__");
+        IConfiguration configuration = WithConnectionString("__SQLITE_CONNECTION_STRING__");
 
         // Act
         InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>

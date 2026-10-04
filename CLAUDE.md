@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **template** for .NET 10 modular monoliths. It ships only the reusable core (`Shared` folders, test harness, tooling). Modules and hosts are added by the projects built from it, so `Shared` must stay generic: no business code, nothing tied to one module.
 
-The one exception is `Foosball` (with its `Foosball.Worker` host): a **reference module** showing how the pieces fit together (aggregates, value objects, commands/queries, validators, domain events, module DbContext, initializer, worker). Projects built from the template delete it and add their own modules; nothing in `Shared` may depend on it.
+The one exception is `Foosball` (with its `Foosball.Worker`, `Foosball.Api` and `Foosball.Migrator` hosts): a **reference module** showing how the pieces fit together (aggregates, value objects, commands/queries, validators, domain events, module DbContext, initializer, worker). Projects built from the template delete it and add their own modules; nothing in `Shared` may depend on it.
 
 ## Project layout (deliberate, do not change it)
 
@@ -43,9 +43,10 @@ Architecture tests will enforce these boundaries in a later PR. Until then, resp
 
 A foosball (table football) league: `Player` (name + Elo rating) and `Match` (first to 10 goals). `Foosball.Worker` is the robot referee: each tick it plays a random goal in every match in progress, or kicks off a new one between two random players. Finishing a match raises `MatchFinished`, whose handler updates the Elo ratings and saves itself; a 10-0 also raises `FannyAchieved`.
 
-- Wiring: `AddFoosballApplication()` and `AddFoosballInfrastructure(configuration)` (standard `ConnectionStrings:Foosball`, required and checked at registration, no default, a leftover `__PLACEHOLDER__` is rejected; the Worker's `appsettings.json` holds the placeholder `__SQLITE_DB_PATH__` for the deployment to replace, `appsettings.Development.json` points it at the git-ignored SQLite file `foosball.db`, `appsettings.Production.json` only configures the Seq sink). `FoosballModuleInitializer` creates the schema (`EnsureCreated`, no migrations yet) and seeds four players.
+- Wiring: `AddFoosballApplication()` and `AddFoosballInfrastructure(configuration)` (standard `ConnectionStrings:Foosball`, required and checked at registration, no default, a leftover `__PLACEHOLDER__` is rejected; each host's `appsettings.json` holds the placeholder `__SQLITE_CONNECTION_STRING__` as the whole connection string, e.g. `Data Source=/data/foosball.db`, for the deployment to replace, `appsettings.Development.json` points it at the git-ignored SQLite file `foosball.db`, `appsettings.Production.json` only configures the Seq sink). `FoosballModuleInitializer` applies the EF Core migrations (`MigrateAsync`, in `Infrastructure/Foosball/Persistence/Migrations`) and seeds four players. Hosts never run initializers themselves: `Foosball.Migrator` (a one-shot host) does, so run it before `Foosball.Api` or `Foosball.Worker` on a fresh database (`dotnet run --project src/Hosts/Foosball.Migrator`).
 - The module has its own `IFoosballUnitOfWork` (implemented by `FoosballDbContext`) so several modules never compete for `IUnitOfWork`.
-- Run it: `dotnet run --project src/Hosts/Foosball.Worker` (the launch profile sets `DOTNET_ENVIRONMENT=Development`; tick interval: `MatchSimulation:TickInterval`).
+- `Foosball.Api` (minimal API, single `GET /foosball`): returns the matches in progress, or the players ranked by rating when there are none. It only reuses the existing `ListInProgressMatchesQuery` / `LeaderboardQuery`. Run it: `dotnet run --project src/Hosts/Foosball.Api` (`http://localhost:5080`).
+- Run the Worker: `dotnet run --project src/Hosts/Foosball.Worker` (the launch profile sets `DOTNET_ENVIRONMENT=Development`; tick interval: `MatchSimulation:TickInterval`).
 
 ## Commands
 
@@ -73,12 +74,12 @@ CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and 
 
 - `Architecture.Tests` (ArchUnitNET) already enforce layer direction, `internal` handlers, `*CommandHandler` / `*QueryHandler` suffixes, `*Validator` classes living in Application, and entities not being records. Rules use `.WithoutRequiringPositiveResults()` so they pass on the empty template.
 - Rules that need a matching type (handler in the same namespace as its command/query, `IValueObject` being a sealed record) are inert on the empty template and activate on their own once such a type exists. There is no `Skip` to remove.
-- `Application` exposes its internals to `Application.UnitTests`, and `Infrastructure` to `Infrastructure.UnitTests` and `Infrastructure.DbTests` (`InternalsVisibleTo`), which is how the `internal` helpers, behaviors and dispatcher are tested. Both also expose them to `DynamicProxyGenAssembly2` so Moq can mock `ILogger<T>` where `T` is internal; types used as generic arguments of a mocked interface must be `public` in the test project.
+- `Application` exposes its internals to `Application.UnitTests`, and `Infrastructure` to `Infrastructure.UnitTests` and `Infrastructure.DbTests` (`InternalsVisibleTo`), which is how the `internal` helpers, behaviors and dispatcher are tested. Both also expose them to `DynamicProxyGenAssembly2` so Moq can mock internal types; types used as generic arguments of a mocked interface must be `public` in the test project.
 - Use Moq for dependencies, except for `IDomainEventHandler<T>`: Moq intercepts its default interface method, so tests use small real handler classes.
 - `Infrastructure.DbTests` run against in-memory SQLite: no Docker or external database needed. `ApplicationDbContextTests` pin the domain event semantics described above.
-- `Testing.Shared` holds helpers shared by every test project (`AssertEx`, and `VerifyLog` to assert on `Mock<ILogger<T>>`).
+- `Testing.Shared` holds helpers shared by every test project (`AssertEx`).
 
 ## Conventions
 
-- C# rules live in `.claude/rules/csharp.md` (loaded automatically for `*.cs` files): no MediatR, AutoMapper or FluentAssertions; xUnit v3 + Moq; test naming and structure.
+- C# rules live in the APM-managed skill `.claude/skills/csharp-conventions/SKILL.md` (do not edit it by hand, `apm.yml` / `apm.lock.yaml` own it): no MediatR, AutoMapper or FluentAssertions; xUnit v3 + Moq; never mock `ILogger<T>` (use `NullLogger<T>.Instance`); test naming and structure.
 - Commits follow Conventional Commits, checked by a pre-commit `commit-msg` hook. Allowed types: `fix feat test ci chore refactor wip`. PR titles must be semantic **with a scope** (`.github/workflows/pr-lint.yml`).
