@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Shared.Persistence;
 
 /// <summary>
-/// Base commune : extraction et publication des domain events, rien d'autre.
-/// Aucun DbSet ici — chaque contexte concret declare les siens et cible sa propre base
-/// (EF Core resout les options par type de DbContext).
+/// Common base: extracts and publishes domain events, nothing else.
+/// No DbSet here: each concrete context declares its own and targets its own database
+/// (EF Core resolves options per DbContext type).
 /// </summary>
 public abstract class ApplicationDbContext(
     DbContextOptions options,
@@ -41,9 +41,9 @@ public abstract class ApplicationDbContext(
             .Select(entry => entry.Entity)
             .ToList();
 
-        // Materialiser AVANT de vider. AggregateRoot.DomainEvents expose une vue en lecture
-        // seule sur la liste interne, pas une copie : vider dans une projection LINQ paresseuse
-        // viderait aussi ce qu'on croit avoir deja collecte, et plus aucun event ne serait publie.
+        // Materialize BEFORE clearing. AggregateRoot.DomainEvents exposes a read-only view
+        // of the internal list, not a copy: clearing inside a lazy LINQ projection would also
+        // clear what we think we already collected, and no event would be published.
         var domainEvents = entities
             .SelectMany(entity => entity.DomainEvents)
             .ToList();
