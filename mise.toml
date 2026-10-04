@@ -40,6 +40,6 @@ description = "Initialize the foosball database"
 run = """
 dotnet-ef migrations add InitialCreate \
     --project ./src/Infrastructure/Infrastructure.csproj \
-    --startup-project ./src/Hosts/Foosball.Worker/Foosball.Worker.csproj \
+    --startup-project ./src/Hosts/Foosball.Migrator/Foosball.Migrator.csproj \
     --output-dir ./Foosball/Persistence/Migrations
 """

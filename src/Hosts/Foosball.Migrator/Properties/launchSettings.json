@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Foosball.Migrator": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
