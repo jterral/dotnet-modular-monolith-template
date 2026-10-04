@@ -7,7 +7,6 @@ builder.Services.AddSerilogLogging(builder.Configuration);
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
 
 using var host = builder.Build();
-await using var scope = host.Services.CreateAsyncScope();
 
 foreach (IModuleInitializer initializer in host.Services.GetServices<IModuleInitializer>())
 {
