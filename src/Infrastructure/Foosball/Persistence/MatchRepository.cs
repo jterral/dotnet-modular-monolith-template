@@ -6,11 +6,11 @@ namespace Infrastructure.Foosball.Persistence;
 
 internal sealed class MatchRepository(FoosballDbContext context) : IMatchRepository
 {
-    public Task<Match?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        context.Matches.FirstOrDefaultAsync(match => match.Id == id, cancellationToken);
+    public async Task<Match?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await context.Matches.FirstOrDefaultAsync(match => match.Id == id, cancellationToken);
 
-    public Task<bool> HasUnfinishedMatchAsync(Guid playerId, CancellationToken cancellationToken = default) =>
-        context.Matches.AnyAsync(
+    public async Task<bool> HasUnfinishedMatchAsync(Guid playerId, CancellationToken cancellationToken = default) =>
+        await context.Matches.AnyAsync(
             match => match.Status != MatchStatus.Finished
                 && (match.RedPlayerId == playerId || match.BluePlayerId == playerId),
             cancellationToken);
