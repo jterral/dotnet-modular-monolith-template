@@ -63,7 +63,7 @@ dotnet format --verify-no-changes               # stricter than CI: also checks 
 pre-commit run --all-files                      # gitleaks, whitespace, YAML
 ```
 
-CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and `dotnet format analyzers` at `--severity info`, then build and tests.
+CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and `dotnet format analyzers` at `--severity info`, then build (with `-p:TreatWarningsAsErrors=true`, CI only) and tests.
 
 ## Dependencies
 
