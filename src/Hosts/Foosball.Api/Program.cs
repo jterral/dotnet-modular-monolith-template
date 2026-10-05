@@ -16,7 +16,7 @@ builder.Services.AddFoosballApplication();
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
 
 // The referee has no request scope: it resolves its handlers through ScopedExecutor.
-builder.Services.AddSingleton<ScopedExecutor>();
+builder.Services.AddScopedExecutor();
 builder.Services
     .AddOptions<MatchSimulationOptions>()
     .Bind(builder.Configuration.GetSection(MatchSimulationOptions.SectionName))
