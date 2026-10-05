@@ -20,20 +20,22 @@ run = "dotnet build"
 description = "Clean build outputs"
 run = "dotnet clean"
 
-[tasks."dotnet:ci:test"]
+[tasks."dotnet:ci:tests"]
 description = "Run all tests as part of the CI pipeline"
-run = """
-dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~Architecture.Tests"
-dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~UnitTests"
-dotnet test --no-restore --ignore-exit-code 8 --filter "FullyQualifiedName~DbTests"
-"""
+run = [
+  "dotnet test --no-build --project tests/Architecture.Tests",
+  "dotnet test --no-build --project tests/Domain.UnitTests",
+  "dotnet test --no-build --project tests/Application.UnitTests",
+  "dotnet test --no-build --project tests/Infrastructure.UnitTests",
+  "dotnet test --no-build --project tests/Infrastructure.DbTests",
+]
 
 [tasks."dotnet:ci:format"]
 description = "Verify formatting without changing files"
-run = """
-dotnet format style --severity info --verify-no-changes
-dotnet format analyzers --severity info --verify-no-changes
-"""
+run = [
+  "dotnet restore --locked-mode --configfile nuget.config",
+  "dotnet format --severity info --verify-no-changes",
+]
 
 [tasks."dotnet:foosball:db-init"]
 description = "Initialize the foosball database"
