@@ -44,11 +44,11 @@ jobs:
       - run: dotnet restore --locked-mode --configfile nuget.config
       - run: dotnet build --no-restore -p:TreatWarningsAsErrors=true
       - name: Architecture Tests
-        run: dotnet test --project tests/Architecture.Tests --no-build --ignore-exit-code 8
+        run: dotnet test --project tests/Architecture.Tests --no-build
       - name: Unit Tests
         run: |
-          dotnet test --project tests/Domain.UnitTests --no-build --ignore-exit-code 8
-          dotnet test --project tests/Application.UnitTests --no-build --ignore-exit-code 8
-          dotnet test --project tests/Infrastructure.UnitTests --no-build --ignore-exit-code 8
+          dotnet test --project tests/Domain.UnitTests --no-build
+          dotnet test --project tests/Application.UnitTests --no-build
+          dotnet test --project tests/Infrastructure.UnitTests --no-build
       - name: Db Tests
-        run: dotnet test --project tests/Infrastructure.DbTests --no-build --ignore-exit-code 8
+        run: dotnet test --project tests/Infrastructure.DbTests --no-build
