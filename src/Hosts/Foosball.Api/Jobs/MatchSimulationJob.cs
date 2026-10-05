@@ -10,22 +10,22 @@ using Domain.Shared;
 using Infrastructure.Shared.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace Foosball.Api;
+namespace Foosball.Api.Jobs;
 
 /// <summary>
 /// The robot referee: each tick it plays one goal in every match in progress,
 /// and kicks off a new match between two random players when the table is free.
 /// </summary>
-internal sealed class MatchSimulationWorker(
+internal sealed class MatchSimulationJob(
     ScopedExecutor scopedExecutor,
     IOptions<MatchSimulationOptions> options,
-    ILogger<MatchSimulationWorker> logger) : BackgroundService
+    ILogger<MatchSimulationJob> logger) : BackgroundService
 {
     private const int PlayersPoolSize = 50;
 
     private readonly ScopedExecutor _scopedExecutor = scopedExecutor;
     private readonly IOptions<MatchSimulationOptions> _options = options;
-    private readonly ILogger<MatchSimulationWorker> _logger = logger;
+    private readonly ILogger<MatchSimulationJob> _logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

@@ -5,6 +5,7 @@ using Application.Foosball.Players.Leaderboard;
 using Application.Shared.Messaging;
 using Domain.Shared;
 using Foosball.Api;
+using Foosball.Api.Jobs;
 using Infrastructure.Foosball;
 using Infrastructure.Shared.Hosting;
 using Infrastructure.Shared.Logging;
@@ -22,7 +23,7 @@ builder.Services
     .Bind(builder.Configuration.GetSection(MatchSimulationOptions.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
-builder.Services.AddHostedService<MatchSimulationWorker>();
+builder.Services.AddHostedService<MatchSimulationJob>();
 
 WebApplication app = builder.Build();
 
