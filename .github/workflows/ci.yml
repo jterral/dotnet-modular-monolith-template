@@ -26,8 +26,8 @@ jobs:
           global-json-file: global.json
           cache: true
           cache-dependency-path: "**/packages.lock.json"
-      - run: dotnet format style --severity info --verify-no-changes
-      - run: dotnet format analyzers --severity info --verify-no-changes
+      - run: dotnet restore --locked-mode --configfile nuget.config
+      - run: dotnet format --severity info --verify-no-changes
 
   build-and-test:
     runs-on: ubuntu-latest
@@ -44,11 +44,11 @@ jobs:
       - run: dotnet restore --locked-mode --configfile nuget.config
       - run: dotnet build --no-restore -p:TreatWarningsAsErrors=true
       - name: Architecture Tests
-        run: dotnet test --project tests/Architecture.Tests --no-build
+        run: dotnet test --no-build --project tests/Architecture.Tests
       - name: Unit Tests
         run: |
-          dotnet test --project tests/Domain.UnitTests --no-build
-          dotnet test --project tests/Application.UnitTests --no-build
-          dotnet test --project tests/Infrastructure.UnitTests --no-build
+          dotnet test --no-build --project tests/Domain.UnitTests
+          dotnet test --no-build --project tests/Application.UnitTests
+          dotnet test --no-build --project tests/Infrastructure.UnitTests
       - name: Db Tests
-        run: dotnet test --project tests/Infrastructure.DbTests --no-build
+        run: dotnet test --no-build --project tests/Infrastructure.DbTests
