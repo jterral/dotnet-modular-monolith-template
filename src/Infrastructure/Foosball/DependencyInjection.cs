@@ -4,6 +4,7 @@ using Application.Foosball.Matches;
 using Application.Foosball.Players;
 using Application.Shared;
 using Application.Shared.Events;
+using Infrastructure.Shared.HealthChecks;
 using Infrastructure.Foosball.Persistence;
 using Infrastructure.Shared.DomainEvents;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,9 @@ public static partial class DependencyInjection
         services.AddScoped<IMatchRepository, MatchRepository>();
 
         services.AddSingleton<IModuleInitializer, FoosballModuleInitializer>();
+
+        services.AddHealthChecks()
+            .AddSqlite(connectionString, name: "foosball-sqlite", tags: [HealthCheckTags.Ready]);
 
         return services;
     }
