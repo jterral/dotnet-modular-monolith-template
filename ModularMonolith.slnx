@@ -3,12 +3,14 @@
     <Project Path="src/Application/Application.csproj" />
     <Project Path="src/Domain/Domain.csproj" />
     <Project Path="src/Infrastructure/Infrastructure.csproj" />
+    <Project Path="src/Infrastructure.Shared.Api/Infrastructure.Shared.Api.csproj" />
   </Folder>
   <Folder Name="/Core/Tests/">
     <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />
     <Project Path="tests/Architecture.Tests/Architecture.Tests.csproj" />
     <Project Path="tests/Domain.UnitTests/Domain.UnitTests.csproj" />
     <Project Path="tests/Infrastructure.DbTests/Infrastructure.DbTests.csproj" />
+    <Project Path="tests/Infrastructure.Shared.Api.UnitTests/Infrastructure.Shared.Api.UnitTests.csproj" />
     <Project Path="tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" />
     <Project Path="tests/Testing.Shared/Testing.Shared.csproj" />
   </Folder>
