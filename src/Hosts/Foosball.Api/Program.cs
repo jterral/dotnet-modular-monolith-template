@@ -18,6 +18,7 @@ builder.Services.AddSerilogLogging(builder.Configuration);
 
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 builder.Services.AddApiDocumentation();
+builder.Services.AddGlobalExceptionHandler();
 
 // The referee has no request scope: it resolves its handlers through ScopedExecutor.
 builder.Services.AddScopedExecutor();
@@ -32,6 +33,7 @@ builder.Services.AddHostedService<MatchSimulationJob>();
 WebApplication app = builder.Build();
 
 app.UsePathBase("/foosball");
+app.UseExceptionHandler();
 app.UseRouting();
 
 // Live runs no check (the process answers); ready runs the checks tagged Ready (database).
