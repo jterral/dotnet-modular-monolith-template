@@ -7,6 +7,7 @@ using Domain.Shared;
 using Foosball.Api;
 using Foosball.Api.Jobs;
 using Infrastructure.Foosball;
+using Infrastructure.Shared.Api;
 using Infrastructure.Shared.HealthChecks;
 using Infrastructure.Shared.Hosting;
 using Infrastructure.Shared.Logging;
@@ -28,6 +29,8 @@ builder.Services
     .ValidateOnStart();
 builder.Services.AddHostedService<MatchSimulationJob>();
 
+builder.Services.AddApiDocumentation();
+
 // ----------
 WebApplication app = builder.Build();
 
@@ -38,8 +41,12 @@ app.UseRouting();
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains(HealthCheckTags.Ready) });
 
+app.MapApiDocumentation();
+
+RouteGroupBuilder v1 = app.MapApiVersion(1);
+
 // Matches in progress when there are any, the players (by rating) otherwise.
-app.MapGet("/foosball", async (
+v1.MapGet("/foosball", async (
     IQueryHandler<ListInProgressMatchesQuery, IReadOnlyList<MatchResponse>> matchesHandler,
     IQueryHandler<LeaderboardQuery, IReadOnlyList<LeaderboardEntry>> leaderboardHandler,
     CancellationToken cancellationToken) =>
