@@ -12,6 +12,7 @@ using Infrastructure.Shared.Hosting;
 using Infrastructure.Shared.Logging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
+// ----------
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSerilogLogging(builder.Configuration);
@@ -27,7 +28,11 @@ builder.Services
     .ValidateOnStart();
 builder.Services.AddHostedService<MatchSimulationJob>();
 
+// ----------
 WebApplication app = builder.Build();
+
+app.UsePathBase("/foosball");
+app.UseRouting();
 
 // Live runs no check (the process answers); ready runs the checks tagged Ready (database).
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
