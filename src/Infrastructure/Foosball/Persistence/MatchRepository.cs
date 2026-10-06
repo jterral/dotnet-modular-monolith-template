@@ -6,20 +6,22 @@ namespace Infrastructure.Foosball.Persistence;
 
 internal sealed class MatchRepository(FoosballDbContext context) : IMatchRepository
 {
+    private readonly FoosballDbContext _context = context;
+
     public async Task<Match?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        await context.Matches.FirstOrDefaultAsync(match => match.Id == id, cancellationToken);
+        await _context.Matches.FirstOrDefaultAsync(match => match.Id == id, cancellationToken);
 
     public async Task<bool> HasUnfinishedMatchAsync(Guid playerId, CancellationToken cancellationToken = default) =>
-        await context.Matches.AnyAsync(
+        await _context.Matches.AnyAsync(
             match => match.Status != MatchStatus.Finished
                 && (match.RedPlayerId == playerId || match.BluePlayerId == playerId),
             cancellationToken);
 
     public async Task<IReadOnlyList<Match>> GetInProgressAsync(CancellationToken cancellationToken = default) =>
-        await context.Matches
+        await _context.Matches
             .AsNoTracking()
             .Where(match => match.Status == MatchStatus.InProgress)
             .ToListAsync(cancellationToken);
 
-    public void Add(Match match) => context.Matches.Add(match);
+    public void Add(Match match) => _context.Matches.Add(match);
 }
