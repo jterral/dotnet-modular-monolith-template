@@ -63,7 +63,7 @@ dotnet format --verify-no-changes               # stricter than CI: also checks 
 pre-commit run --all-files                      # gitleaks, whitespace, YAML
 ```
 
-CI (`.github/workflows/ci.yml`) runs pre-commit, then `dotnet format style` and `dotnet format analyzers` at `--severity info`, then build (with `-p:TreatWarningsAsErrors=true`, CI only) and tests.
+CI (`.github/workflows/ci.yml`, triggered by `pull_request` only) runs three independent jobs in parallel: pre-commit; `dotnet format --no-restore --severity info --verify-no-changes`; and restore, build (with `-p:TreatWarningsAsErrors=true`, CI only) and tests. A `concurrency` group `ci-<ref>` cancels superseded runs.
 
 ## Dependencies
 
