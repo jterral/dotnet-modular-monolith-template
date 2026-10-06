@@ -38,6 +38,22 @@ public sealed class GlobalExceptionHandlerTests : IDisposable
         Assert.DoesNotContain("secret", written.ProblemDetails.Detail ?? string.Empty);
     }
 
+    [Fact]
+    public async Task TryHandleAsync_ClientDisconnected_Returns499WithoutWritingAProblem()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        var httpContext = new DefaultHttpContext { RequestAborted = cts.Token };
+        await cts.CancelAsync();
+
+        // Act
+        bool handled = await _sut.TryHandleAsync(httpContext, new OperationCanceledException(cts.Token), CancellationToken.None);
+
+        // Assert
+        Assert.True(handled);
+        Assert.Equal(499, httpContext.Response.StatusCode);
+    }
+
     public void Dispose()
     {
         _problemDetailsServiceMock.VerifyNoOtherCalls();

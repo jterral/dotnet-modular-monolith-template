@@ -9,6 +9,8 @@ internal sealed class GlobalExceptionHandler(
     IProblemDetailsService problemDetailsService,
     ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
+    private const int ClientClosedRequestStatusCode = 499;
+
     private readonly IProblemDetailsService _problemDetailsService = problemDetailsService;
     private readonly ILogger<GlobalExceptionHandler> _logger = logger;
 
@@ -17,6 +19,14 @@ internal sealed class GlobalExceptionHandler(
         Exception exception,
         CancellationToken cancellationToken)
     {
+        // A client that disconnects is not a server error: 499 is the de facto status for it, and nobody reads the response.
+        if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
+        {
+            httpContext.Response.StatusCode = ClientClosedRequestStatusCode;
+
+            return true;
+        }
+
         _logger.LogError(exception, "Unhandled exception for {Method} {Path}", httpContext.Request.Method, httpContext.Request.Path);
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;

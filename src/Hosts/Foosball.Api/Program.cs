@@ -32,8 +32,9 @@ builder.Services.AddHostedService<MatchSimulationJob>();
 // ----------
 WebApplication app = builder.Build();
 
-app.UsePathBase("/foosball");
+// First, so that it also covers the errors of the middlewares below.
 app.UseExceptionHandler();
+app.UsePathBase("/foosball");
 app.UseRouting();
 
 // Live runs no check (the process answers); ready runs the checks tagged Ready (database).
