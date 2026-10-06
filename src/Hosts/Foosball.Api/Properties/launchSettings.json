@@ -3,6 +3,8 @@
     "Foosball.Api": {
       "commandName": "Project",
       "applicationUrl": "http://localhost:5000",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:5000/foosball/scalar",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
