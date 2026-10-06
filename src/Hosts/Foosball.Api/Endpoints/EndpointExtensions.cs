@@ -3,16 +3,15 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Foosball.Api.Endpoints;
 
-public static class EndpointExtensions
+internal static class EndpointExtensions
 {
     // Scanning is limited to the host assembly: endpoints are the only thing a host owns,
     // unlike handlers and repositories which stay registered explicitly by their module.
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {
-        ServiceDescriptor[] descriptors = assembly.DefinedTypes
+        ServiceDescriptor[] descriptors = [.. assembly.DefinedTypes
             .Where(type => type is { IsAbstract: false, IsInterface: false } && type.IsAssignableTo(typeof(IEndpoint)))
-            .Select(type => ServiceDescriptor.Transient(typeof(IEndpoint), type))
-            .ToArray();
+            .Select(type => ServiceDescriptor.Transient(typeof(IEndpoint), type))];
 
         services.TryAddEnumerable(descriptors);
 
