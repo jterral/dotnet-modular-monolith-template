@@ -11,9 +11,12 @@ internal static class ValidationBehavior
         IEnumerable<IValidator<TCommand>> validators) : ICommandHandler<TCommand>
         where TCommand : ICommand
     {
+        private readonly ICommandHandler<TCommand> _inner = inner;
+        private readonly IEnumerable<IValidator<TCommand>> _validators = validators;
+
         public async Task<Result> HandleAsync(TCommand command, CancellationToken cancellationToken = default)
         {
-            foreach (IValidator<TCommand> validator in validators)
+            foreach (IValidator<TCommand> validator in _validators)
             {
                 Result validation = await validator.ValidateAsync(command, cancellationToken);
 
@@ -23,7 +26,7 @@ internal static class ValidationBehavior
                 }
             }
 
-            return await inner.HandleAsync(command, cancellationToken);
+            return await _inner.HandleAsync(command, cancellationToken);
         }
     }
 
@@ -32,9 +35,12 @@ internal static class ValidationBehavior
         IEnumerable<IValidator<TCommand>> validators) : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
     {
+        private readonly ICommandHandler<TCommand, TResponse> _inner = inner;
+        private readonly IEnumerable<IValidator<TCommand>> _validators = validators;
+
         public async Task<Result<TResponse>> HandleAsync(TCommand command, CancellationToken cancellationToken = default)
         {
-            foreach (IValidator<TCommand> validator in validators)
+            foreach (IValidator<TCommand> validator in _validators)
             {
                 Result validation = await validator.ValidateAsync(command, cancellationToken);
 
@@ -44,7 +50,7 @@ internal static class ValidationBehavior
                 }
             }
 
-            return await inner.HandleAsync(command, cancellationToken);
+            return await _inner.HandleAsync(command, cancellationToken);
         }
     }
 }
