@@ -24,7 +24,7 @@ public static class ApiEndpointRouteBuilderExtensions
             .Build();
 
         return endpoints
-            .MapGroup($"/api/v{majorVersion}")
+            .MapGroup("/api/v{version:apiVersion}")
             .WithApiVersionSet(versionSet);
     }
 }

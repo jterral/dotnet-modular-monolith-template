@@ -18,6 +18,7 @@ public static class ApiServiceCollectionExtensions
             {
                 options.DefaultApiVersion = new ApiVersion(versions[0]);
                 options.AssumeDefaultVersionWhenUnspecified = false;
+                options.ApiVersionReader = new UrlSegmentApiVersionReader();
                 options.ReportApiVersions = true;
             })
             .AddApiExplorer(options =>
