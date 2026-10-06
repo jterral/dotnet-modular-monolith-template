@@ -7,9 +7,12 @@ using Domain.Shared;
 using Foosball.Api;
 using Foosball.Api.Jobs;
 using Infrastructure.Foosball;
+using Infrastructure.Shared.HealthChecks;
 using Infrastructure.Shared.Hosting;
 using Infrastructure.Shared.Logging;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
+// ----------
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSerilogLogging(builder.Configuration);
@@ -25,7 +28,15 @@ builder.Services
     .ValidateOnStart();
 builder.Services.AddHostedService<MatchSimulationJob>();
 
+// ----------
 WebApplication app = builder.Build();
+
+app.UsePathBase("/foosball");
+app.UseRouting();
+
+// Live runs no check (the process answers); ready runs the checks tagged Ready (database).
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains(HealthCheckTags.Ready) });
 
 // Matches in progress when there are any, the players (by rating) otherwise.
 app.MapGet("/foosball", async (
