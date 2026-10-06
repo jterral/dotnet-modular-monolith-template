@@ -10,22 +10,26 @@ using Domain.Shared;
 using Infrastructure.Shared.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace Foosball.Worker;
+namespace Foosball.Api.Jobs;
 
 /// <summary>
 /// The robot referee: each tick it plays one goal in every match in progress,
 /// and kicks off a new match between two random players when the table is free.
 /// </summary>
-internal sealed class MatchSimulationWorker(
+internal sealed class MatchSimulationJob(
     ScopedExecutor scopedExecutor,
     IOptions<MatchSimulationOptions> options,
-    ILogger<MatchSimulationWorker> logger) : BackgroundService
+    ILogger<MatchSimulationJob> logger) : BackgroundService
 {
     private const int PlayersPoolSize = 50;
 
+    private readonly ScopedExecutor _scopedExecutor = scopedExecutor;
+    private readonly IOptions<MatchSimulationOptions> _options = options;
+    private readonly ILogger<MatchSimulationJob> _logger = logger;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var timer = new PeriodicTimer(options.Value.TickInterval);
+        using var timer = new PeriodicTimer(_options.Value.TickInterval);
 
         try
         {
@@ -50,7 +54,7 @@ internal sealed class MatchSimulationWorker(
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             // A failing tick must not stop the referee: the next one starts from a fresh scope.
-            logger.LogError(exception, "Match simulation tick failed");
+            _logger.LogError(exception, "Match simulation tick failed");
         }
     }
 
@@ -73,7 +77,7 @@ internal sealed class MatchSimulationWorker(
 
     private async Task<IReadOnlyList<MatchResponse>> ListInProgressMatchesAsync(CancellationToken cancellationToken)
     {
-        Result<IReadOnlyList<MatchResponse>> result = await scopedExecutor.ExecuteAsync<IQueryHandler<ListInProgressMatchesQuery, IReadOnlyList<MatchResponse>>, Result<IReadOnlyList<MatchResponse>>>(
+        Result<IReadOnlyList<MatchResponse>> result = await _scopedExecutor.ExecuteAsync<IQueryHandler<ListInProgressMatchesQuery, IReadOnlyList<MatchResponse>>, Result<IReadOnlyList<MatchResponse>>>(
             (handler, token) => handler.HandleAsync(new ListInProgressMatchesQuery(), token), cancellationToken);
 
         return result.IsSuccess ? result.Value : [];
@@ -84,14 +88,14 @@ internal sealed class MatchSimulationWorker(
         Side side = Random.Shared.Next(2) == 0 ? Side.Red : Side.Blue;
 
         // Failures are already logged by the logging behavior of the pipeline.
-        await scopedExecutor.ExecuteAsync<ICommandHandler<ScoreGoalCommand>>(
+        await _scopedExecutor.ExecuteAsync<ICommandHandler<ScoreGoalCommand>>(
             (handler, token) => handler.HandleAsync(new ScoreGoalCommand(matchId, side), token),
             cancellationToken);
     }
 
     private async Task StartNewMatchAsync(CancellationToken cancellationToken)
     {
-        Result<IReadOnlyList<LeaderboardEntry>> players = await scopedExecutor.ExecuteAsync<
+        Result<IReadOnlyList<LeaderboardEntry>> players = await _scopedExecutor.ExecuteAsync<
             IQueryHandler<LeaderboardQuery, IReadOnlyList<LeaderboardEntry>>,
             Result<IReadOnlyList<LeaderboardEntry>>>(
             (handler, token) => handler.HandleAsync(new LeaderboardQuery(PlayersPoolSize), token),
@@ -99,7 +103,7 @@ internal sealed class MatchSimulationWorker(
 
         if (players.IsFailure || players.Value.Count < 2)
         {
-            logger.LogWarning("Not enough players to start a match");
+            _logger.LogWarning("Not enough players to start a match");
 
             return;
         }
@@ -110,7 +114,7 @@ internal sealed class MatchSimulationWorker(
         int blueIndex = (redIndex + 1 + Random.Shared.Next(pool.Count - 1)) % pool.Count;
 
         // Each handler saves on its own, so scheduling and starting are two units of work, hence two scopes.
-        Result<Guid> scheduled = await scopedExecutor.ExecuteAsync<
+        Result<Guid> scheduled = await _scopedExecutor.ExecuteAsync<
             ICommandHandler<ScheduleMatchCommand, Guid>,
             Result<Guid>>(
             (handler, token) => handler.HandleAsync(
@@ -123,7 +127,7 @@ internal sealed class MatchSimulationWorker(
             return;
         }
 
-        Result started = await scopedExecutor.ExecuteAsync<ICommandHandler<StartMatchCommand>, Result>(
+        Result started = await _scopedExecutor.ExecuteAsync<ICommandHandler<StartMatchCommand>, Result>(
             (handler, token) => handler.HandleAsync(new StartMatchCommand(scheduled.Value), token),
             cancellationToken);
 
@@ -132,6 +136,6 @@ internal sealed class MatchSimulationWorker(
             return;
         }
 
-        logger.LogInformation("Kick-off: {Red} vs {Blue}", pool[redIndex].Name, pool[blueIndex].Name);
+        _logger.LogInformation("Kick-off: {Red} vs {Blue}", pool[redIndex].Name, pool[blueIndex].Name);
     }
 }

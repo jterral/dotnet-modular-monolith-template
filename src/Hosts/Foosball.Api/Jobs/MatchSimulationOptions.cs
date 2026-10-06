@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Foosball.Worker;
+namespace Foosball.Api.Jobs;
 
 internal sealed class MatchSimulationOptions
 {

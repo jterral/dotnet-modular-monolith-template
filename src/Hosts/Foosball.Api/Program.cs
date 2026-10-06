@@ -5,7 +5,9 @@ using Application.Foosball.Players.Leaderboard;
 using Application.Shared.Messaging;
 using Domain.Shared;
 using Foosball.Api;
+using Foosball.Api.Jobs;
 using Infrastructure.Foosball;
+using Infrastructure.Shared.Hosting;
 using Infrastructure.Shared.Logging;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,15 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSerilogLogging(builder.Configuration);
 builder.Services.AddFoosballApplication();
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
+
+// The referee has no request scope: it resolves its handlers through ScopedExecutor.
+builder.Services.AddScopedExecutor();
+builder.Services
+    .AddOptions<MatchSimulationOptions>()
+    .Bind(builder.Configuration.GetSection(MatchSimulationOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddHostedService<MatchSimulationJob>();
 
 WebApplication app = builder.Build();
 
