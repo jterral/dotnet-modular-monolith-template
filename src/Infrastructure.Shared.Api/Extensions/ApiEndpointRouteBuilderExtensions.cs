@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Scalar.AspNetCore;
 
-namespace Infrastructure.Shared.Api;
+namespace Infrastructure.Shared.Api.Extensions;
 
 public static class ApiEndpointRouteBuilderExtensions
 {

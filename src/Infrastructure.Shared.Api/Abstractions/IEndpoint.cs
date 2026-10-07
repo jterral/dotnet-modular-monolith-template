@@ -1,6 +1,7 @@
+using Infrastructure.Shared.Api.Extensions;
 using Microsoft.AspNetCore.Routing;
 
-namespace Infrastructure.Shared.Api;
+namespace Infrastructure.Shared.Api.Abstractions;
 
 /// <summary>
 /// A group of routes registered on the application by <see cref="EndpointExtensions.MapEndpoints"/>.

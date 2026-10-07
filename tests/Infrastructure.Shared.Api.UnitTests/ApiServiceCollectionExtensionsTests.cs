@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using Infrastructure.Shared.Api;
+using Infrastructure.Shared.Api.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

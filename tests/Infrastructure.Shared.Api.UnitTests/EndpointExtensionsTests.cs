@@ -1,4 +1,5 @@
-using Infrastructure.Shared.Api;
+using Infrastructure.Shared.Api.Abstractions;
+using Infrastructure.Shared.Api.Extensions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 

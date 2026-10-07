@@ -1,10 +1,11 @@
 using System.Reflection;
+using Infrastructure.Shared.Api.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Infrastructure.Shared.Api;
+namespace Infrastructure.Shared.Api.Extensions;
 
 public static class EndpointExtensions
 {

@@ -2,7 +2,7 @@ using System.Reflection;
 using Application.Shared.Messaging;
 using ArchUnitNET.Loader;
 using Domain.Shared;
-using Infrastructure.Shared.Api;
+using Infrastructure.Shared.Api.Extensions;
 using Infrastructure.Shared.Persistence;
 using Arch = ArchUnitNET.Domain.Architecture;
 

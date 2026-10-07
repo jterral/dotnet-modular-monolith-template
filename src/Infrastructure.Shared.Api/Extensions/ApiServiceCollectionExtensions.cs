@@ -1,7 +1,7 @@
 using Asp.Versioning;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.Shared.Api;
+namespace Infrastructure.Shared.Api.Extensions;
 
 public static class ApiServiceCollectionExtensions
 {
