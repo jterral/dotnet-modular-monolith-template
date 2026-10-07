@@ -9,4 +9,8 @@
     <ProjectReference Include="..\..\Infrastructure.Shared.Api\Infrastructure.Shared.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).IntegrationTests" />
+  </ItemGroup>
+
 </Project>

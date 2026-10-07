@@ -9,6 +9,7 @@
     <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />
     <Project Path="tests/Architecture.Tests/Architecture.Tests.csproj" />
     <Project Path="tests/Domain.UnitTests/Domain.UnitTests.csproj" />
+    <Project Path="tests/Foosball.Api.IntegrationTests/Foosball.Api.IntegrationTests.csproj" />
     <Project Path="tests/Infrastructure.DbTests/Infrastructure.DbTests.csproj" />
     <Project Path="tests/Infrastructure.Shared.Api.UnitTests/Infrastructure.Shared.Api.UnitTests.csproj" />
     <Project Path="tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" />

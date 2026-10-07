@@ -29,6 +29,7 @@ run = [
   "dotnet test --no-build --project tests/Infrastructure.UnitTests",
   "dotnet test --no-build --project tests/Infrastructure.Shared.Api.UnitTests",
   "dotnet test --no-build --project tests/Infrastructure.DbTests",
+  "dotnet test --no-build --project tests/Foosball.Api.IntegrationTests",
 ]
 
 [tasks."dotnet:ci:format"]

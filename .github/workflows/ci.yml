@@ -53,3 +53,5 @@ jobs:
           dotnet test --no-build --project tests/Infrastructure.Shared.Api.UnitTests
       - name: Db Tests
         run: dotnet test --no-build --project tests/Infrastructure.DbTests
+      - name: Integration Tests
+        run: dotnet test --no-build --project tests/Foosball.Api.IntegrationTests
