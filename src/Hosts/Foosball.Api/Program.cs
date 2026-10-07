@@ -2,7 +2,7 @@ using System.Reflection;
 using Application.Foosball;
 using Foosball.Api.Jobs;
 using Infrastructure.Foosball;
-using Infrastructure.Shared.Api;
+using Infrastructure.Shared.Api.Extensions;
 using Infrastructure.Shared.HealthChecks;
 using Infrastructure.Shared.Hosting;
 using Infrastructure.Shared.Logging;
@@ -11,10 +11,13 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 // ----------
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSerilogLogging(builder.Configuration);
 builder.Services.AddFoosballApplication();
 builder.Services.AddFoosballInfrastructure(builder.Configuration);
+
+builder.Services.AddSerilogLogging(builder.Configuration);
+
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
+builder.Services.AddApiDocumentation();
 
 // The referee has no request scope: it resolves its handlers through ScopedExecutor.
 builder.Services.AddScopedExecutor();
@@ -24,8 +27,6 @@ builder.Services
     .ValidateDataAnnotations()
     .ValidateOnStart();
 builder.Services.AddHostedService<MatchSimulationJob>();
-
-builder.Services.AddApiDocumentation();
 
 // ----------
 WebApplication app = builder.Build();
