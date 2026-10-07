@@ -32,17 +32,14 @@ builder.Services.AddHostedService<MatchSimulationJob>();
 // ----------
 WebApplication app = builder.Build();
 
-// First, so that it also covers the errors of the middlewares below.
 app.UseExceptionHandler();
 app.UsePathBase("/foosball");
 app.UseRouting();
 
-// Live runs no check (the process answers); ready runs the checks tagged Ready (database).
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains(HealthCheckTags.Ready) });
 
 app.MapApiDocumentation();
-
 app.MapEndpoints(app.MapApiVersion(1));
 
 await app.RunAsync();
