@@ -18,6 +18,7 @@ builder.Services.AddSerilogLogging(builder.Configuration);
 
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 builder.Services.AddApiDocumentation();
+builder.Services.AddGlobalExceptionHandler();
 
 // The referee has no request scope: it resolves its handlers through ScopedExecutor.
 builder.Services.AddScopedExecutor();
@@ -31,15 +32,14 @@ builder.Services.AddHostedService<MatchSimulationJob>();
 // ----------
 WebApplication app = builder.Build();
 
+app.UseExceptionHandler();
 app.UsePathBase("/foosball");
 app.UseRouting();
 
-// Live runs no check (the process answers); ready runs the checks tagged Ready (database).
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains(HealthCheckTags.Ready) });
 
 app.MapApiDocumentation();
-
 app.MapEndpoints(app.MapApiVersion(1));
 
 await app.RunAsync();

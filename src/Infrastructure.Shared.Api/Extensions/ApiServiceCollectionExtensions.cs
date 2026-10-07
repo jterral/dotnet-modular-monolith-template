@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Infrastructure.Shared.Api.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Shared.Api.Extensions;
@@ -6,6 +7,14 @@ namespace Infrastructure.Shared.Api.Extensions;
 public static class ApiServiceCollectionExtensions
 {
     private const int DefaultMajorVersion = 1;
+
+    public static IServiceCollection AddGlobalExceptionHandler(this IServiceCollection services)
+    {
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
+
+        return services;
+    }
 
     public static IServiceCollection AddApiDocumentation(
         this IServiceCollection services,
