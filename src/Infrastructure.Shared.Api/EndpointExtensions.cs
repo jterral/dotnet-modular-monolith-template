@@ -1,11 +1,14 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Foosball.Api.Endpoints;
+namespace Infrastructure.Shared.Api;
 
-internal static class EndpointExtensions
+public static class EndpointExtensions
 {
-    // Scanning is limited to the host assembly: endpoints are the only thing a host owns,
+    // Scanning is limited to the assembly given by the host: endpoints are the only thing a host owns,
     // unlike handlers and repositories which stay registered explicitly by their module.
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {

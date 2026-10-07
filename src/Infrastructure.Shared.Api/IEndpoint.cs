@@ -1,4 +1,6 @@
-namespace Foosball.Api.Endpoints;
+using Microsoft.AspNetCore.Routing;
+
+namespace Infrastructure.Shared.Api;
 
 /// <summary>
 /// A group of routes registered on the application by <see cref="EndpointExtensions.MapEndpoints"/>.

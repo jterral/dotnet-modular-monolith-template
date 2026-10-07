@@ -1,6 +1,5 @@
 using System.Reflection;
 using Application.Foosball;
-using Foosball.Api.Endpoints;
 using Foosball.Api.Jobs;
 using Infrastructure.Foosball;
 using Infrastructure.Shared.Api;
