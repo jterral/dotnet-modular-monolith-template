@@ -16,7 +16,7 @@ public sealed class LayerDependencyTests : BaseTest
         Types().That().ResideInAssembly(InfrastructureAssembly).As("Infrastructure Layer");
 
     private static readonly IObjectProvider<IType> _infrastructureSharedApiLayer =
-    Types().That().ResideInAssembly(InfrastructureSharedApiAssembly).As("Infrastructure.Shared.Api project");
+        Types().That().ResideInAssembly(InfrastructureSharedApiAssembly).As("Infrastructure.Shared.Api project");
 
     [Fact]
     public void Domain_Always_HasNoDependencyOnApplication()
