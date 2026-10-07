@@ -11,6 +11,10 @@ internal sealed class ScheduleMatchCommandHandler(
     IMatchRepository matches,
     IFoosballUnitOfWork unitOfWork) : ICommandHandler<ScheduleMatchCommand, Guid>
 {
+    private readonly IPlayerRepository _players = players;
+    private readonly IMatchRepository _matches = matches;
+    private readonly IFoosballUnitOfWork _unitOfWork = unitOfWork;
+
     public async Task<Result<Guid>> HandleAsync(
         ScheduleMatchCommand command,
         CancellationToken cancellationToken = default)
@@ -24,20 +28,20 @@ internal sealed class ScheduleMatchCommandHandler(
 
         foreach (Guid playerId in new[] { command.RedPlayerId, command.BluePlayerId })
         {
-            if (await players.GetByIdAsync(playerId, cancellationToken) is null)
+            if (await _players.GetByIdAsync(playerId, cancellationToken) is null)
             {
                 return Result.Failure<Guid>(PlayerErrors.NotFound);
             }
 
-            if (await matches.HasUnfinishedMatchAsync(playerId, cancellationToken))
+            if (await _matches.HasUnfinishedMatchAsync(playerId, cancellationToken))
             {
                 return Result.Failure<Guid>(MatchErrors.PlayerBusy);
             }
         }
 
-        matches.Add(scheduled.Value);
+        _matches.Add(scheduled.Value);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return scheduled.Value.Id;
     }

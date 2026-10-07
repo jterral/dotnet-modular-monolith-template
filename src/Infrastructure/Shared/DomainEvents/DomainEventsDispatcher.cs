@@ -12,6 +12,9 @@ internal sealed class DomainEventsDispatcher(
 {
     private static readonly ConcurrentDictionary<Type, Type> HandlerTypes = new();
 
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly ILogger<DomainEventsDispatcher> _logger = logger;
+
     public async Task DispatchAsync(
         IEnumerable<IDomainEvent> domainEvents,
         CancellationToken cancellationToken = default)
@@ -24,11 +27,11 @@ internal sealed class DomainEventsDispatcher(
                 eventType,
                 static type => typeof(IDomainEventHandler<>).MakeGenericType(type));
 
-            foreach (IDomainEventHandler handler in serviceProvider
+            foreach (IDomainEventHandler handler in _serviceProvider
                          .GetServices(handlerType)
                          .OfType<IDomainEventHandler>())
             {
-                logger.LogInformation(
+                _logger.LogInformation(
                     "Handling {DomainEvent} with {Handler}",
                     eventType.Name,
                     handler.GetType().Name);
@@ -39,7 +42,7 @@ internal sealed class DomainEventsDispatcher(
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Handler failed for {DomainEvent}", eventType.Name);
+                    _logger.LogError(exception, "Handler failed for {DomainEvent}", eventType.Name);
                     throw;
                 }
             }

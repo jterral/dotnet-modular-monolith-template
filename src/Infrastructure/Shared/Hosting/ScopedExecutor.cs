@@ -4,12 +4,14 @@ namespace Infrastructure.Shared.Hosting;
 
 public sealed class ScopedExecutor(IServiceScopeFactory scopeFactory)
 {
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+
     public async Task ExecuteAsync<TService>(
         Func<TService, CancellationToken, Task> work,
         CancellationToken cancellationToken = default)
         where TService : notnull
     {
-        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         TService service = scope.ServiceProvider.GetRequiredService<TService>();
 
         await work(service, cancellationToken);
@@ -20,7 +22,7 @@ public sealed class ScopedExecutor(IServiceScopeFactory scopeFactory)
         CancellationToken cancellationToken = default)
         where TService : notnull
     {
-        await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         TService service = scope.ServiceProvider.GetRequiredService<TService>();
 
         return await work(service, cancellationToken);

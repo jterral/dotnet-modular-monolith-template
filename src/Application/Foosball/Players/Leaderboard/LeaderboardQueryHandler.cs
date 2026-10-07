@@ -7,11 +7,13 @@ namespace Application.Foosball.Players.Leaderboard;
 internal sealed class LeaderboardQueryHandler(IPlayerRepository players)
     : IQueryHandler<LeaderboardQuery, IReadOnlyList<LeaderboardEntry>>
 {
+    private readonly IPlayerRepository _players = players;
+
     public async Task<Result<IReadOnlyList<LeaderboardEntry>>> HandleAsync(
         LeaderboardQuery query,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Player> top = await players.GetTopByRatingAsync(Math.Max(0, query.Top), cancellationToken);
+        IReadOnlyList<Player> top = await _players.GetTopByRatingAsync(Math.Max(0, query.Top), cancellationToken);
 
         IReadOnlyList<LeaderboardEntry> entries =
         [

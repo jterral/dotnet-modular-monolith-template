@@ -6,9 +6,11 @@ namespace Application.Foosball.Matches.EventHandlers;
 
 internal sealed class LogGoalScoredHandler(ILogger<LogGoalScoredHandler> logger) : IDomainEventHandler<GoalScored>
 {
+    private readonly ILogger<LogGoalScoredHandler> _logger = logger;
+
     public Task HandleAsync(GoalScored domainEvent, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation(
+        _logger.LogInformation(
             "GOAL for {Side}! Red {RedScore} - {BlueScore} Blue (match {MatchId})",
             domainEvent.Side,
             domainEvent.RedScore,

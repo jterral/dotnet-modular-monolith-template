@@ -8,9 +8,12 @@ internal sealed class StartMatchCommandHandler(
     IMatchRepository matches,
     IFoosballUnitOfWork unitOfWork) : ICommandHandler<StartMatchCommand>
 {
+    private readonly IMatchRepository _matches = matches;
+    private readonly IFoosballUnitOfWork _unitOfWork = unitOfWork;
+
     public async Task<Result> HandleAsync(StartMatchCommand command, CancellationToken cancellationToken = default)
     {
-        Match? match = await matches.GetByIdAsync(command.MatchId, cancellationToken);
+        Match? match = await _matches.GetByIdAsync(command.MatchId, cancellationToken);
 
         if (match is null)
         {
@@ -24,7 +27,7 @@ internal sealed class StartMatchCommandHandler(
             return started;
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

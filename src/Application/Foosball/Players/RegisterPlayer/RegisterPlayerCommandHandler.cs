@@ -8,6 +8,9 @@ internal sealed class RegisterPlayerCommandHandler(
     IPlayerRepository players,
     IFoosballUnitOfWork unitOfWork) : ICommandHandler<RegisterPlayerCommand, Guid>
 {
+    private readonly IPlayerRepository _players = players;
+    private readonly IFoosballUnitOfWork _unitOfWork = unitOfWork;
+
     public async Task<Result<Guid>> HandleAsync(
         RegisterPlayerCommand command,
         CancellationToken cancellationToken = default)
@@ -19,15 +22,15 @@ internal sealed class RegisterPlayerCommandHandler(
             return Result.Failure<Guid>(name.Error);
         }
 
-        if (await players.NameExistsAsync(name.Value, cancellationToken))
+        if (await _players.NameExistsAsync(name.Value, cancellationToken))
         {
             return Result.Failure<Guid>(PlayerErrors.NameAlreadyTaken);
         }
 
         var player = Player.Create(name.Value);
-        players.Add(player);
+        _players.Add(player);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return player.Id;
     }

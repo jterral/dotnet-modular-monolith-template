@@ -96,9 +96,12 @@ public sealed class DomainEventsDispatcherTests : IDisposable
     private sealed class RecordingHandler<TEvent>(string name, List<string> calls) : IDomainEventHandler<TEvent>
         where TEvent : IDomainEvent
     {
+        private readonly string _name = name;
+        private readonly List<string> _calls = calls;
+
         public Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken = default)
         {
-            calls.Add($"{name}:{typeof(TEvent).Name}");
+            _calls.Add($"{_name}:{typeof(TEvent).Name}");
 
             return Task.CompletedTask;
         }
@@ -106,7 +109,9 @@ public sealed class DomainEventsDispatcherTests : IDisposable
 
     private sealed class ThrowingHandler(Exception failure) : IDomainEventHandler<FailingEvent>
     {
+        private readonly Exception _failure = failure;
+
         public Task HandleAsync(FailingEvent domainEvent, CancellationToken cancellationToken = default) =>
-            Task.FromException(failure);
+            Task.FromException(_failure);
     }
 }
