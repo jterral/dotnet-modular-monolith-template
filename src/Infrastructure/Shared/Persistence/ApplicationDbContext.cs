@@ -15,6 +15,8 @@ public abstract class ApplicationDbContext(
     IDomainEventsDispatcher domainEventsDispatcher)
     : DbContext(options), IUnitOfWork
 {
+    private readonly IDomainEventsDispatcher _domainEventsDispatcher = domainEventsDispatcher;
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Events are dispatched AFTER the save: the state is persisted before any handler runs.
@@ -29,7 +31,7 @@ public abstract class ApplicationDbContext(
 
         var result = await base.SaveChangesAsync(cancellationToken);
 
-        await domainEventsDispatcher.DispatchAsync(domainEvents, cancellationToken);
+        await _domainEventsDispatcher.DispatchAsync(domainEvents, cancellationToken);
 
         return result;
     }

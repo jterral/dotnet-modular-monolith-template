@@ -201,11 +201,14 @@ public sealed class ApplicationDbContextTests : IAsyncLifetime
     private sealed class OrderCreatedHandler(TestDbContext context, HandlerBehavior behavior)
         : IDomainEventHandler<OrderCreated>
     {
+        private readonly TestDbContext _context = context;
+        private readonly HandlerBehavior _behavior = behavior;
+
         public async Task HandleAsync(OrderCreated domainEvent, CancellationToken cancellationToken = default)
         {
-            behavior.Handled.Add(domainEvent);
+            _behavior.Handled.Add(domainEvent);
 
-            await behavior.OnOrderCreated(context, domainEvent, cancellationToken);
+            await _behavior.OnOrderCreated(_context, domainEvent, cancellationToken);
         }
     }
 }

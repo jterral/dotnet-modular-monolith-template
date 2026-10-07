@@ -11,14 +11,18 @@ internal sealed class UpdateRatingsOnMatchFinishedHandler(
     IFoosballUnitOfWork unitOfWork,
     ILogger<UpdateRatingsOnMatchFinishedHandler> logger) : IDomainEventHandler<MatchFinished>
 {
+    private readonly IPlayerRepository _players = players;
+    private readonly IFoosballUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ILogger<UpdateRatingsOnMatchFinishedHandler> _logger = logger;
+
     public async Task HandleAsync(MatchFinished domainEvent, CancellationToken cancellationToken = default)
     {
-        Player? winner = await players.GetByIdAsync(domainEvent.WinnerId, cancellationToken);
-        Player? loser = await players.GetByIdAsync(domainEvent.LoserId, cancellationToken);
+        Player? winner = await _players.GetByIdAsync(domainEvent.WinnerId, cancellationToken);
+        Player? loser = await _players.GetByIdAsync(domainEvent.LoserId, cancellationToken);
 
         if (winner is null || loser is null)
         {
-            logger.LogWarning("Ratings of match {MatchId} not updated: a player no longer exists", domainEvent.MatchId);
+            _logger.LogWarning("Ratings of match {MatchId} not updated: a player no longer exists", domainEvent.MatchId);
 
             return;
         }
@@ -28,9 +32,9 @@ internal sealed class UpdateRatingsOnMatchFinishedHandler(
         loser.UpdateRating(change.Loser);
 
         // The match is already saved when this handler runs and nothing saves on its behalf.
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation(
+        _logger.LogInformation(
             "{Winner} ({WinnerRating}) beat {Loser} ({LoserRating}) {RedScore}-{BlueScore}",
             winner.Name,
             winner.Rating,
