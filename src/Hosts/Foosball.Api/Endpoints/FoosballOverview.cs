@@ -1,7 +1,7 @@
 using Application.Foosball.Matches;
 using Application.Foosball.Players.Leaderboard;
 
-namespace Foosball.Api;
+namespace Foosball.Api.Endpoints;
 
 /// <summary>
 /// What is happening in the league right now: the matches in progress, or the players when none is.
