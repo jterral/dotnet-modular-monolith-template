@@ -1,4 +1,4 @@
-using Infrastructure.Shared.Api.Extensions;
+using Infrastructure.Shared.Api.Handlers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -24,7 +24,7 @@ public sealed class GlobalExceptionHandlerTests : IDisposable
         _problemDetailsServiceMock
             .Setup(x => x.TryWriteAsync(It.IsAny<ProblemDetailsContext>()))
             .Callback<ProblemDetailsContext>(context => written = context)
-            .Returns(ValueTask.FromResult(true));
+            .ReturnsAsync(true);
 
         // Act
         bool handled = await _sut.TryHandleAsync(httpContext, new InvalidOperationException("secret"), CancellationToken.None);
@@ -36,6 +36,8 @@ public sealed class GlobalExceptionHandlerTests : IDisposable
         Assert.Equal(StatusCodes.Status500InternalServerError, written.ProblemDetails.Status);
         Assert.DoesNotContain("secret", written.ProblemDetails.Title);
         Assert.DoesNotContain("secret", written.ProblemDetails.Detail ?? string.Empty);
+
+        _problemDetailsServiceMock.Verify(x => x.TryWriteAsync(It.IsAny<ProblemDetailsContext>()), Times.Once);
     }
 
     [Fact]
@@ -54,8 +56,5 @@ public sealed class GlobalExceptionHandlerTests : IDisposable
         Assert.Equal(499, httpContext.Response.StatusCode);
     }
 
-    public void Dispose()
-    {
-        _problemDetailsServiceMock.VerifyNoOtherCalls();
-    }
+    public void Dispose() => _problemDetailsServiceMock.VerifyNoOtherCalls();
 }

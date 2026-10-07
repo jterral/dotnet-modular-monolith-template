@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Infrastructure.Shared.Api.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Shared.Api.Extensions;

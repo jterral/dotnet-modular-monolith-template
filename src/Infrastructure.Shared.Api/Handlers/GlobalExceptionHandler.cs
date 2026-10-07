@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Shared.Api.Extensions;
+namespace Infrastructure.Shared.Api.Handlers;
 
 internal sealed class GlobalExceptionHandler(
     IProblemDetailsService problemDetailsService,
