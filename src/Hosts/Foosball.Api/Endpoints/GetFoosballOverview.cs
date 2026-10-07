@@ -3,6 +3,7 @@ using Application.Foosball.Matches.ListInProgressMatches;
 using Application.Foosball.Players.Leaderboard;
 using Application.Shared.Messaging;
 using Domain.Shared;
+using Infrastructure.Shared.Api.Abstractions;
 
 namespace Foosball.Api.Endpoints;
 

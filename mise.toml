@@ -27,6 +27,7 @@ run = [
   "dotnet test --no-build --project tests/Domain.UnitTests",
   "dotnet test --no-build --project tests/Application.UnitTests",
   "dotnet test --no-build --project tests/Infrastructure.UnitTests",
+  "dotnet test --no-build --project tests/Infrastructure.Shared.Api.UnitTests",
   "dotnet test --no-build --project tests/Infrastructure.DbTests",
 ]
 

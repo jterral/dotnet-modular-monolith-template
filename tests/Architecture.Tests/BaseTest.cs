@@ -2,6 +2,7 @@ using System.Reflection;
 using Application.Shared.Messaging;
 using ArchUnitNET.Loader;
 using Domain.Shared;
+using Infrastructure.Shared.Api.Extensions;
 using Infrastructure.Shared.Persistence;
 using Arch = ArchUnitNET.Domain.Architecture;
 
@@ -15,10 +16,13 @@ public abstract class BaseTest
 
     protected static readonly Assembly InfrastructureAssembly = typeof(ApplicationDbContext).Assembly;
 
+    protected static readonly Assembly InfrastructureSharedApiAssembly = typeof(ApiServiceCollectionExtensions).Assembly;
+
     protected static readonly Arch Architecture = new ArchLoader()
         .LoadAssemblies(
             DomainAssembly,
             ApplicationAssembly,
-            InfrastructureAssembly)
+            InfrastructureAssembly,
+            InfrastructureSharedApiAssembly)
         .Build();
 }
