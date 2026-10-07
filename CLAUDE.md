@@ -85,5 +85,5 @@ CI (`.github/workflows/ci.yml`, triggered by `pull_request` only) runs three ind
 
 ## Conventions
 
-- C# rules live in the APM-managed skill `.claude/skills/csharp-conventions/SKILL.md` (do not edit it by hand, `apm.yml` / `apm.lock.yaml` own it): no MediatR, AutoMapper or FluentAssertions; xUnit v3 + Moq; never mock `ILogger<T>` (use `NullLogger<T>.Instance`); test naming and structure.
+- C# rules live in the APM-managed skill `.claude/skills/csharp-conventions/SKILL.md` (do not edit it by hand, `apm.yml` / `apm.lock.yaml` own it): no MediatR, AutoMapper or FluentAssertions; xUnit v3 + Moq; never mock `ILogger<T>` (use `NullLogger<T>.Instance`); test naming and structure; primary constructors for dependency injection, with each parameter copied into a `private readonly` `_field` and only the field used in the body (not for records, nor for parameters only forwarded to the base class, e.g. `DbContext(options)`; see `MatchSimulationJob`).
 - Commits follow Conventional Commits, checked by a pre-commit `commit-msg` hook. Allowed types: `fix feat test ci chore refactor wip`. PR titles must be semantic **with a scope** (`.github/workflows/pr-lint.yml`).
