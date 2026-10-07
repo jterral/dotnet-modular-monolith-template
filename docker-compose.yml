@@ -1,0 +1,61 @@
+# Local stack: docker compose up --build
+# Seq UI: http://localhost:8081, API: http://localhost:5000/foosball/api/v1/foosball, docs: http://localhost:5000/foosball/scalar
+# Optional variables: BUILD_VERSION (assembly version, image tag), REGISTRY (image name prefix), SEQ_API_KEY.
+name: foosball
+
+x-foosball-env: &foosball-env
+  DOTNET_ENVIRONMENT: Production
+  ConnectionStrings__Foosball: Data Source=/data/foosball.db
+  Serilog__WriteTo__0__Args__apiKey: ${SEQ_API_KEY:-}
+
+services:
+  seq:
+    image: datalust/seq:latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "8081:80"
+    volumes:
+      - seq-data:/data
+
+  migrator:
+    image: ${REGISTRY:-local}/foosball-migrator:${BUILD_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: src/Hosts/Foosball.Migrator/Dockerfile
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-0.0.0}
+    environment: *foosball-env
+    volumes:
+      - foosball-data:/data
+    depends_on:
+      - seq
+    restart: "no"
+
+  api:
+    image: ${REGISTRY:-local}/foosball-api:${BUILD_VERSION:-latest}
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: src/Hosts/Foosball.Api/Dockerfile
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-0.0.0}
+    environment: *foosball-env
+    ports:
+      - "5000:8080"
+    volumes:
+      - foosball-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+
+volumes:
+  foosball-data:
+  seq-data:
